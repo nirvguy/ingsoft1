@@ -46,25 +46,28 @@ class CustomerBook:
         self.customerNames.remove(name)
 
 class IdionTest(unittest.TestCase):
-    def testAddingCustomerShouldNotTakeMoreThan50Milliseconds(self):
+    def _testTimingOfCustomerOperation(self, customer_operation, max_time=50, customer_setup_operation = None):
         customerBook = CustomerBook()
 
+        if customer_setup_operation:
+            customer_setup_operation(customerBook)
+
         timeBeforeRunning = time.time()
-        customerBook.addCustomerNamed('John Lennon')
+        customer_operation(customerBook)
         timeAfterRunning = time.time()
 
-        self.assertTrue((timeAfterRunning - timeBeforeRunning) * 1000 < 50)
+        self.assertTrue((timeAfterRunning - timeBeforeRunning) * 1000 < max_time)
+
+    def testAddingCustomerShouldNotTakeMoreThan50Milliseconds(self):
+        self._testTimingOfCustomerOperation(lambda customer: customer.addCustomerNamed('Jhon Lennon'),
+                                            max_time=50)
 
     def testRemovingCustomerShouldNotTakeMoreThan100Milliseconds(self):
-        customerBook = CustomerBook()
         paulMcCartney = 'Paul McCartney'
-        
-        customerBook.addCustomerNamed(paulMcCartney)
-        timeBeforeRunning = time.time()
-        customerBook.removeCustomerNamed(paulMcCartney)
-        timeAfterRunning = time.time()
 
-        self.assertTrue((timeAfterRunning - timeBeforeRunning) * 1000 < 100)
+        self._testTimingOfCustomerOperation(customer_setup_operation=lambda customer: customer.addCustomerNamed(paulMcCartney),
+                                            customer_operation=lambda customer: customer.removeCustomerNamed(paulMcCartney),
+                                            max_time=100)
 
     def testCanNotAddACustomerWithEmptyName(self):
         customerBook = CustomerBook()
