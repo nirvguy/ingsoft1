@@ -45,29 +45,36 @@ class CustomerBook:
         
         self.customerNames.remove(name)
 
+def measureTimeOfOperationInMilliseconds(operation):
+    timeBeforeRunning = time.time()
+    operation()
+    timeAfterRunning = time.time()
+    return (timeAfterRunning - timeBeforeRunning) * 1000
+
+def setupCustomerBook(setup=None):
+    customerBook = CustomerBook()
+    if setup:
+        setup(customerBook)
+    return customerBook
+
 class IdionTest(unittest.TestCase):
-    def _testTimingOfCustomerOperation(self, customer_operation, max_time=50, customer_setup_operation = None):
-        customerBook = CustomerBook()
+    def assertOperationTookLessThanNMilliseconds(self, timeOfOperation, maxTime):
+        self.assertTrue(timeOfOperation < maxTime)
 
-        if customer_setup_operation:
-            customer_setup_operation(customerBook)
-
-        timeBeforeRunning = time.time()
-        customer_operation(customerBook)
-        timeAfterRunning = time.time()
-
-        self.assertTrue((timeAfterRunning - timeBeforeRunning) * 1000 < max_time)
+    def assertCustomerOperationDidNotTimedOut(self, maxTime, customerOperation, setupOperation=None):
+        customerBook = setupCustomerBook(setupOperation)
+        timeOfOperation = measureTimeOfOperationInMilliseconds(lambda : customerOperation(customerBook))
+        self.assertOperationTookLessThanNMilliseconds(timeOfOperation, maxTime)
 
     def testAddingCustomerShouldNotTakeMoreThan50Milliseconds(self):
-        self._testTimingOfCustomerOperation(lambda customer: customer.addCustomerNamed('Jhon Lennon'),
-                                            max_time=50)
+        self.assertCustomerOperationDidNotTimedOut(50,
+            lambda customerBook: customerBook.addCustomerNamed('John Lennon'))
 
     def testRemovingCustomerShouldNotTakeMoreThan100Milliseconds(self):
         paulMcCartney = 'Paul McCartney'
-
-        self._testTimingOfCustomerOperation(customer_setup_operation=lambda customer: customer.addCustomerNamed(paulMcCartney),
-                                            customer_operation=lambda customer: customer.removeCustomerNamed(paulMcCartney),
-                                            max_time=100)
+        self.assertCustomerOperationDidNotTimedOut(100,
+            lambda customerBook: customerBook.removeCustomerNamed(paulMcCartney),
+            lambda customerBook: customerBook.addCustomerNamed(paulMcCartney))
 
     def testCanNotAddACustomerWithEmptyName(self):
         customerBook = CustomerBook()
