@@ -76,27 +76,43 @@ class IdionTest(unittest.TestCase):
             lambda customerBook: customerBook.removeCustomerNamed(paulMcCartney),
             lambda customerBook: customerBook.addCustomerNamed(paulMcCartney))
 
+    def assertOperationFails(self, operation, exceptionType, operationOnExcept):
+        try:
+            operation()
+            self.fail()
+        except exceptionType as exception:
+            operationOnExcept(exception)
+
+    def assertCustomerOperationFailsWithMessage(self, customerOperation, exceptionType, exceptionMessage, customerOperationOnExcept, setupOperation=None):
+        customerBook = setupCustomerBook(setupOperation)
+
+        def onExcept(exception):
+            self.assertEquals(exception.message, exceptionMessage)
+            customerOperationOnExcept(customerBook)
+
+        self.assertOperationFails(operation=lambda: customerOperation(customerBook),
+            exceptionType=exceptionType,
+            operationOnExcept=onExcept)
+
     def testCanNotAddACustomerWithEmptyName(self):
-        customerBook = CustomerBook()
-        
-        try:
-            customerBook.addCustomerNamed('')
-            self.fail()
-        except ValueError as exception:
-            self.assertEquals(exception.message,CustomerBook.CUSTOMER_NAME_CAN_NOT_BE_EMPTY)
-            self.assertTrue(customerBook.isEmpty())
-                 
+        self.assertCustomerOperationFailsWithMessage(
+            customerOperation=lambda customerBook: customerBook.addCustomerNamed(''),
+            exceptionType=ValueError,
+            exceptionMessage=CustomerBook.CUSTOMER_NAME_CAN_NOT_BE_EMPTY,
+            customerOperationOnExcept=lambda customerBook: self.assertTrue(customerBook.isEmpty()))
+
     def testCanNotRemoveNotAddedCustomer(self):
-        customerBook = CustomerBook()
-        customerBook.addCustomerNamed('Paul McCartney')
-        
-        try:
-            customerBook.removeCustomerNamed('John Lennon')
-            self.fail()
-        except KeyError as exception:
-            self.assertEquals(exception.message,CustomerBook.INVALID_CUSTOMER_NAME)
+
+        def assertThatCustomerBookDidNotChanged(customerBook):
             self.assertTrue(customerBook.numberOfCustomers()==1)
             self.assertTrue(customerBook.includesCustomerNamed('Paul McCartney'))
+
+        self.assertCustomerOperationFailsWithMessage(
+            customerOperation=lambda customerBook: customerBook.removeCustomerNamed('John Lennon'),
+            exceptionType=KeyError,
+            exceptionMessage=CustomerBook.INVALID_CUSTOMER_NAME,
+            customerOperationOnExcept=assertThatCustomerBookDidNotChanged,
+            setupOperation=lambda customerBook: customerBook.addCustomerNamed('Paul McCartney'))
 
       
 if __name__ == "__main__":
