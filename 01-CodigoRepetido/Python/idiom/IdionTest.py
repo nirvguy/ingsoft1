@@ -67,14 +67,14 @@ class IdionTest(unittest.TestCase):
         self.assertOperationTookLessThanNMilliseconds(timeOfOperation, maxTime)
 
     def testAddingCustomerShouldNotTakeMoreThan50Milliseconds(self):
-        self.assertCustomerOperationDidNotTimedOut(50,
-            lambda customerBook: customerBook.addCustomerNamed('John Lennon'))
+        self.assertCustomerOperationDidNotTimedOut(maxTime=50,
+            customerOperation=lambda customerBook: customerBook.addCustomerNamed('John Lennon'))
 
     def testRemovingCustomerShouldNotTakeMoreThan100Milliseconds(self):
         paulMcCartney = 'Paul McCartney'
-        self.assertCustomerOperationDidNotTimedOut(100,
-            lambda customerBook: customerBook.removeCustomerNamed(paulMcCartney),
-            lambda customerBook: customerBook.addCustomerNamed(paulMcCartney))
+        self.assertCustomerOperationDidNotTimedOut(maxTime=100,
+            customerOperation=lambda customerBook: customerBook.removeCustomerNamed(paulMcCartney),
+            setupOperation=lambda customerBook: customerBook.addCustomerNamed(paulMcCartney))
 
     def assertOperationFails(self, operation, exceptionType, operationOnExcept):
         try:
