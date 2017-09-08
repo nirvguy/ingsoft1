@@ -44,6 +44,9 @@ class Entero(Numero):
     def esUno(self):
         return self._valor == 1
 
+    def sumarEntero(self, sumando):
+        return Entero(self._valor + sumando.valor())
+        
     def __eq__(self,anObject):
         if isinstance(anObject, self.__class__):
             return self._valor==anObject._valor
@@ -51,7 +54,7 @@ class Entero(Numero):
             return False
         
     def __add__(self,sumando):
-        return Entero(self._valor+sumando.valor())
+        return sumando.sumarEntero(self)
  
     def __mul__(self,factor):
         return Entero(self._valor*factor.valor())
@@ -106,6 +109,9 @@ class Fraccion(Numero):
 
     def esUno(self):
         return False
+
+    def sumarEntero(self, sumando):
+        return Fraccion(sumando * self._denominador + self._numerador, self._denominador)
 
     def __eq__(self,anObject):
         if isinstance(anObject, self.__class__):
