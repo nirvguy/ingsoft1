@@ -55,7 +55,10 @@ class Entero(Numero):
 
     def multiplicarFraccion(self, factor):
         return factor.multiplicarEntero(self)
-        
+
+    def dividirFraccion(self, divisor):
+        return Fraccion(self * divisor.denominador(), divisor.numerador())
+
     def __eq__(self,anObject):
         if isinstance(anObject, self.__class__):
             return self._valor==anObject._valor
@@ -70,7 +73,7 @@ class Entero(Numero):
          
     def __div__(self,divisor):
         return divisor.dividirEntero(self)
-        
+
     def dividirEntero(self,dividendo):
         if self.esCero():
             raise Exception(Numero.DESCRIPCION_DE_ERROR_DE_DIVISION_POR_CERO)
@@ -85,7 +88,7 @@ class Entero(Numero):
         
         if denominador.esUno():
             return numerador
-        
+
         return Fraccion(numerador,denominador)
 
     def divisionEntera(self,divisorEntero):
@@ -136,6 +139,9 @@ class Fraccion(Numero):
     def multiplicarFraccion(self, factor):
         return (self._numerador * factor.numerador()) / (self._denominador * factor.denominador())
 
+    def dividirEntero(self, dividendo):
+        return self._denominador / (self._numerador * dividendo)
+
     def __eq__(self,anObject):
         if isinstance(anObject, self.__class__):
             return self._numerador*anObject.denominador()==self._denominador*anObject.numerador()
@@ -150,7 +156,7 @@ class Fraccion(Numero):
 
     def __div__(self,divisor):
         return divisor.dividirFraccion(self)
-    
+
     def dividirFraccion(self,dividendo):
         return (dividendo.numerador() * self._denominador) / (dividendo.denominador () * self._numerador)
 
