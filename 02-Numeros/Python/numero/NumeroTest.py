@@ -56,8 +56,8 @@ class Entero(Numero):
     def multiplicarFraccion(self, factor):
         return factor.multiplicarEntero(self)
 
-    def dividirFraccion(self, divisor):
-        return Fraccion(self * divisor.denominador(), divisor.numerador())
+    def dividirFraccion(self, dividendo):
+        return Fraccion(dividendo.numerador(), dividendo.denominador() * self)
 
     def __eq__(self,anObject):
         if isinstance(anObject, self.__class__):
