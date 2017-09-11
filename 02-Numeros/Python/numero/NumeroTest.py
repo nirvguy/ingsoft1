@@ -75,6 +75,9 @@ class Entero(Numero):
         return factor.multiplicarEntero(self)
 
     def dividirFraccion(self, dividendo):
+        if self.esCero():
+            raise Exception(Numero.DESCRIPCION_DE_ERROR_DE_DIVISION_POR_CERO)
+
         return Fraccion(dividendo.numerador(), dividendo.denominador() * self)
 
     def __eq__(self,anObject):
