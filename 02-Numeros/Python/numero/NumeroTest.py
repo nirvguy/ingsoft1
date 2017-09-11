@@ -27,6 +27,24 @@ class Numero:
     def __div__(self,divisor):
         self.shouldBeImplementedBySubclass()
 
+    def sumarEntero(self, sumando):
+        self.shouldBeImplementedBySubclass()
+
+    def sumarFraccion(self, sumando):
+        self.shouldBeImplementedBySubclass()
+
+    def multiplicarEntero(self, factor):
+        self.shouldBeImplementedBySubclass()
+
+    def multiplicarFraccion(self, factor):
+        self.shouldBeImplementedBySubclass()
+
+    def dividirEntero(self, dividendo):
+        self.shouldBeImplementedBySubclass()
+
+    def dividirFraccion(self, dividendo):
+        self.shouldBeImplementedBySubclass()
+
     def shouldBeImplementedBySubclass(self):
         raise NotImplementedError('Should be implemented by the subclass')
 
