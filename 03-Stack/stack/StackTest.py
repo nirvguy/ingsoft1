@@ -52,9 +52,10 @@ class Stack:
         self._size += 1
 
     def pop(self):
-        previous_top, self._top = self._top, self._top.previous()
+        previousTopObject = self._top.object()
+        self._top = self._top.previous()
         self._size -= 1
-        return previous_top.object()
+        return previousTopObject
 
     def size(self):
         return self._size
