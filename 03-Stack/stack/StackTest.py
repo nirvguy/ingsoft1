@@ -13,21 +13,51 @@ import unittest
 class Stack:
 
     STACK_EMPTY_DESCRIPTION = 'Stack is empty'
-    
-    def push(self, anObject):
-        raise NotImplementedError
-    
-    def pop(self):
-        raise NotImplementedError
-    
+
+    class EmptyElement:
+        def __init__(self):
+            pass
+
+        def previous(self):
+            raise Exception(Stack.STACK_EMPTY_DESCRIPTION)
+
+        def object(self):
+            raise Exception(Stack.STACK_EMPTY_DESCRIPTION)
+
+    class Element:
+        def __init__(self, anObject, previous):
+            self._object = anObject
+            self._previous = previous
+
+        def previous(self):
+            return self._previous
+
+        def object(self):
+            return self._object
+
+    EMPTY = EmptyElement()
+
+    def __init__(self):
+        self._top = Stack.EMPTY
+        self._size = 0
+
     def top(self):
-        raise NotImplementedError
-    
+        return self._top.object()
+
     def isEmpty(self):
-        raise NotImplementedError
-    
+        return self._top is Stack.EMPTY
+
+    def push(self, anObject):
+        self._top = Stack.Element(anObject, self._top)
+        self._size += 1
+
+    def pop(self):
+        previous_top, self._top = self._top, self._top.previous()
+        self._size -= 1
+        return previous_top.object()
+
     def size(self):
-        raise NotImplementedError
+        return self._size
     
 class StackTest(unittest.TestCase):
     
