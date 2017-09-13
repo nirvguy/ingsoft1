@@ -48,6 +48,68 @@ class Numero:
     def shouldBeImplementedBySubclass(self):
         raise NotImplementedError('Should be implemented by the subclass')
 
+class Denominador(object):
+    def __init__(self, entero):
+        self._entero = entero
+
+    def entero(self):
+        return self._entero
+
+    @classmethod
+    def esDenominadorPara(cls, entero):
+        raise NotImplementedError('Should be implemented by the subclass')
+
+    @classmethod
+    def denominadorPara(cls, entero):
+        posibles_divisores = filter(lambda cls: cls.esDenominadorPara(entero), cls.__subclasses__())
+        divisor_class = next(iter(posibles_divisores))
+        return divisor_class(entero)
+
+    @classmethod
+    def dividirEntero(cls, entero):
+        self.shouldBeImplementedBySubclass()
+
+    def dameFraccionOEntero(self, numerador):
+        self.shouldBeImplementedBySubclass()
+
+class DenominadorCero(Denominador):
+    @classmethod
+    def esDenominadorPara(cls, entero):
+        return entero.esCero()
+
+    def dividirEntero(self, dividendo):
+        raise Exception(Numero.DESCRIPCION_DE_ERROR_DE_DIVISION_POR_CERO)
+
+class DenominadorUno(Denominador):
+    @classmethod
+    def esDenominadorPara(cls, entero):
+        return entero.esUno()
+
+    def dividirEntero(self, dividendo):
+        return dividendo
+
+    def dameFraccionOEntero(self, numerador):
+        return numerador
+
+
+class DenominadorNiCeroNiUno(Denominador):
+    @classmethod
+    def esDenominadorPara(cls, entero):
+        return not entero.esCero() and not entero.esUno()
+
+    def dividirEntero(self, dividendo):
+        maximoComunDivisor = self._entero.maximoComunDivisorCon(dividendo)
+        #No puedo usar / porque puedo caer en una recursion, por eso divido directamente
+        #los valores porque se que son enteros
+        numerador = dividendo.divisionEntera(maximoComunDivisor)
+        denominador = Denominador.denominadorPara(self._entero.divisionEntera(maximoComunDivisor))
+
+        return denominador.dameFraccionOEntero(numerador)
+
+    def dameFraccionOEntero(self, numerador):
+        return Fraccion(numerador, self._entero)
+
+
 class Entero(Numero):
 
     def __init__(self, numero):
@@ -96,21 +158,8 @@ class Entero(Numero):
         return divisor.dividirEntero(self)
 
     def dividirEntero(self,dividendo):
-        if self.esCero():
-            raise Exception(Numero.DESCRIPCION_DE_ERROR_DE_DIVISION_POR_CERO)
-        if self.esUno():
-            return dividendo
-
-        maximoComunDivisor = self.maximoComunDivisorCon(dividendo)
-        #No puedo usar / porque puedo caer en una recursion, por eso divido directamente
-        #los valores porque se que son enteros
-        numerador = dividendo.divisionEntera(maximoComunDivisor)
-        denominador = self.divisionEntera(maximoComunDivisor)
-
-        if denominador.esUno():
-            return numerador
-
-        return Fraccion(numerador,denominador)
+        denominador = Denominador.denominadorPara(self)
+        return denominador.dividirEntero(dividendo)
 
     def divisionEntera(self,divisorEntero):
         return Entero (self._valor / divisorEntero.valor())
