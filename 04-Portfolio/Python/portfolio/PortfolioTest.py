@@ -85,8 +85,11 @@ class Portfolio(SummarizingAccount):
     def hasRegistered(self, transaction):
         return any(map(lambda account: account.hasRegistered(transaction), self._accounts))
 
-    def manages(self, anAccount):
+    def managesAccount(self, anAccount):
         return any(map(lambda account: account.manages(anAccount), self._accounts))
+
+    def manages(self, anAccount):
+        return any(map(self.managesAccount, anAccount.accounts()))
 
     def transactions(self):
         return reduce(lambda transactions,account: transactions + account.transactions(), self._accounts, [])
