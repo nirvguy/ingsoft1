@@ -95,10 +95,13 @@ class Portfolio(SummarizingAccount):
         return reduce(lambda transactions,account: transactions + account.transactions(), self._accounts, [])
 
     def addAccount(self,account):
+        if self.manages(account):
+            raise Exception(Portfolio.ACCOUNT_ALREADY_MANAGED)
         self._accounts.append(account)
 
     def addAccounts(self, accounts):
-        self._accounts.extend(accounts)
+        for account in accounts:
+            self.addAccount(account)
 
     @classmethod
     def createWith(cls, *accounts):
