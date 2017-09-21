@@ -65,6 +65,9 @@ class ReceptiveAccount(SummarizingAccount):
     def manages(self, account):
         return self==account
 
+    def accounts(self):
+        return [self]
+
     def transactions(self):
         return copy(self._transactions)
 
@@ -95,16 +98,10 @@ class Portfolio(SummarizingAccount):
         self._accounts.extend(accounts)
 
     @classmethod
-    def createWith(cls,anAccount,anotherAccount):
+    def createWith(cls, *accounts):
         portfolio = Portfolio()
-        if isinstance(anAccount, Portfolio):
+        for anAccount in accounts:
             portfolio.addAccounts(anAccount.accounts())
-        else:
-            portfolio.addAccount(anAccount)
-        if isinstance(anotherAccount, Portfolio):
-            portfolio.addAccounts(anotherAccount.accounts())
-        else:
-            portfolio.addAccount(anotherAccount)
         return portfolio
 
     ACCOUNT_ALREADY_MANAGED = "La cuenta ya esta manejada por otro portfolio"
