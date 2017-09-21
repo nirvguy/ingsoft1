@@ -86,7 +86,7 @@ class Portfolio(SummarizingAccount):
         return any(map(lambda account: account.hasRegistered(transaction), self._accounts))
 
     def manages(self, anAccount):
-        raise NotImplementedError()
+        return any(map(lambda account: account.manages(anAccount), self._accounts))
 
     def transactions(self):
         raise NotImplementedError()
