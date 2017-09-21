@@ -45,6 +45,9 @@ class SummarizingAccount:
     def manages(self, account):
         pass
 
+    def doesAnyAccount(self, function):
+        return any(map(function, self.accounts()))
+
     def transactions(self):
         pass
 
@@ -83,13 +86,13 @@ class Portfolio(SummarizingAccount):
         return self._accounts
 
     def hasRegistered(self, transaction):
-        return any(map(lambda account: account.hasRegistered(transaction), self._accounts))
+        return self.doesAnyAccount(lambda account: account.hasRegistered(transaction))
 
     def managesAccount(self, anAccount):
-        return any(map(lambda account: account.manages(anAccount), self._accounts))
+        return self.doesAnyAccount(lambda account: account.manages(anAccount))
 
     def manages(self, anAccount):
-        return any(map(self.managesAccount, anAccount.accounts()))
+        return anAccount.doesAnyAccount(self.managesAccount)
 
     def transactions(self):
         return reduce(lambda transactions,account: transactions + account.transactions(), self._accounts, [])
