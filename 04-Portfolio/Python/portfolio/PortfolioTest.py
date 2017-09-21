@@ -89,7 +89,7 @@ class Portfolio(SummarizingAccount):
         return any(map(lambda account: account.manages(anAccount), self._accounts))
 
     def transactions(self):
-        raise NotImplementedError()
+        return reduce(lambda transactions,account: transactions + account.transactions(), self._accounts, [])
 
     def addAccount(self,account):
         self._accounts.append(account)
