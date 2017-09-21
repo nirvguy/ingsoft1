@@ -70,8 +70,14 @@ class ReceptiveAccount(SummarizingAccount):
 
 
 class Portfolio(SummarizingAccount):
+    def __init__(self):
+        self._accounts = []
+
     def balance(self):
-        raise NotImplementedError()
+        return reduce(lambda balance,account: balance + account.balance(), self._accounts, 0)
+
+    def accounts(self):
+        return self._accounts
 
     def hasRegistered(self, transaction):
         raise NotImplementedError()
@@ -83,11 +89,23 @@ class Portfolio(SummarizingAccount):
         raise NotImplementedError()
 
     def addAccount(self,account):
-        raise NotImplementedError()
+        self._accounts.append(account)
+
+    def addAccounts(self, accounts):
+        self._accounts.extend(accounts)
 
     @classmethod
     def createWith(cls,anAccount,anotherAccount):
-        raise NotImplementedError()
+        portfolio = Portfolio()
+        if isinstance(anAccount, Portfolio):
+            portfolio.addAccounts(anAccount.accounts())
+        else:
+            portfolio.addAccount(anAccount)
+        if isinstance(anotherAccount, Portfolio):
+            portfolio.addAccounts(anotherAccount.accounts())
+        else:
+            portfolio.addAccount(anotherAccount)
+        return portfolio
 
     ACCOUNT_ALREADY_MANAGED = "La cuenta ya esta manejada por otro portfolio"
 
@@ -255,3 +273,6 @@ class PortfolioTests(unittest.TestCase):
             self.fail()
         except Exception as invalidPortfolio:
             self.assertEquals(Portfolio.ACCOUNT_ALREADY_MANAGED, invalidPortfolio.message)
+
+if __name__ == '__main__':
+    unittest.main()
