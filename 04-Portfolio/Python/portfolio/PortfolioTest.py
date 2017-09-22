@@ -83,7 +83,10 @@ class Portfolio(SummarizingAccount):
         return reduce(lambda balance,account: balance + account.balance(), self._accounts, 0)
 
     def accounts(self):
-        return self._accounts
+        return reduce(lambda total_accounts, account: total_accounts + account.accounts(), self._accounts, [])
+
+    def transactions(self):
+        return reduce(lambda transactions,account: transactions + account.transactions(), self._accounts, [])
 
     def hasRegistered(self, transaction):
         return self.doesAnyAccount(lambda account: account.hasRegistered(transaction))
@@ -93,9 +96,6 @@ class Portfolio(SummarizingAccount):
 
     def manages(self, anAccount):
         return anAccount.doesAnyAccount(self.managesAccount)
-
-    def transactions(self):
-        return reduce(lambda transactions,account: transactions + account.transactions(), self._accounts, [])
 
     def addAccount(self,account):
         if self.manages(account):
@@ -109,8 +109,7 @@ class Portfolio(SummarizingAccount):
     @classmethod
     def createWith(cls, *accounts):
         portfolio = Portfolio()
-        for anAccount in accounts:
-            portfolio.addAccounts(anAccount.accounts())
+        portfolio.addAccounts(accounts)
         return portfolio
 
     ACCOUNT_ALREADY_MANAGED = "La cuenta ya esta manejada por otro portfolio"
