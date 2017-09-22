@@ -47,8 +47,8 @@ class SummarizingAccount:
     def manages(self, account):
         pass
 
-    def doesAnyAccount(self, condition):
-        return any(map(condition, self.accounts()))
+    def does(self, condition):
+        pass
 
     def transactions(self):
         pass
@@ -67,31 +67,29 @@ class ReceptiveAccount(SummarizingAccount):
     def manages(self, account):
         return self==account
 
-    def accounts(self):
-        return [self]
-
     def transactions(self):
         return copy(self._transactions)
+
+    def does(self, condition):
+        return condition(self)
+
 
 
 class Portfolio(SummarizingAccount):
     def __init__(self):
         self._accounts = []
 
-    def accounts(self):
-        return reduce(lambda total_accounts, account: total_accounts + account.accounts(), self._accounts, [])
-
     def transactions(self):
         return reduce(lambda transactions,account: transactions + account.transactions(), self._accounts, [])
 
     def hasRegistered(self, transaction):
-        return self.doesAnyAccount(lambda account: account.hasRegistered(transaction))
+        return self.does(lambda account: account.hasRegistered(transaction))
 
     def managesAccount(self, anAccount):
-        return self.doesAnyAccount(lambda account: account.manages(anAccount))
+        return self.does(lambda account: account.manages(anAccount))
 
     def manages(self, anAccount):
-        return anAccount.doesAnyAccount(self.managesAccount)
+        return anAccount.does(self.managesAccount)
 
     def addAccount(self,account):
         if self.manages(account):
@@ -101,6 +99,9 @@ class Portfolio(SummarizingAccount):
     def addAccounts(self, accounts):
         for account in accounts:
             self.addAccount(account)
+
+    def does(self, condition):
+        return any(map(lambda account: account.does(condition), self._accounts))
 
     @classmethod
     def createWith(cls, *accounts):
