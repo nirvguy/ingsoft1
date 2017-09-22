@@ -45,8 +45,8 @@ class SummarizingAccount:
     def manages(self, account):
         pass
 
-    def doesAnyAccount(self, function):
-        return any(map(function, self.accounts()))
+    def doesAnyAccount(self, condition):
+        return any(map(condition, self.accounts()))
 
     def transactions(self):
         pass
