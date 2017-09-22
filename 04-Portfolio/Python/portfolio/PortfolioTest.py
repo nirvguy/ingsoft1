@@ -42,7 +42,7 @@ class SummarizingAccount:
                       0)
 
     def hasRegistered(self, transaction):
-        pass
+        return self.does(lambda account: transaction in account.transactions())
 
     def manages(self, account):
         pass
@@ -61,9 +61,6 @@ class ReceptiveAccount(SummarizingAccount):
         self._transactions.append(aTransaction)
         return aTransaction
 
-    def hasRegistered(self, transaction):
-        return transaction in self._transactions
-
     def manages(self, account):
         return self==account
 
@@ -81,9 +78,6 @@ class Portfolio(SummarizingAccount):
 
     def transactions(self):
         return reduce(lambda transactions,account: transactions + account.transactions(), self._accounts, [])
-
-    def hasRegistered(self, transaction):
-        return self.does(lambda account: account.hasRegistered(transaction))
 
     def managesAccount(self, anAccount):
         return self.does(lambda account: account.manages(anAccount))
