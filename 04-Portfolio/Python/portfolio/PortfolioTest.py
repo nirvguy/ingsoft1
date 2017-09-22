@@ -37,7 +37,9 @@ class Withdraw(AccountTransaction):
 class SummarizingAccount:
 
     def balance(self):
-        pass
+        return reduce(lambda balance, transaction: balance + transaction.value(),
+                      self.transactions(),
+                      0)
 
     def hasRegistered(self, transaction):
         pass
@@ -54,9 +56,6 @@ class SummarizingAccount:
 class ReceptiveAccount(SummarizingAccount):
     def __init__(self):
         self._transactions=[]
-
-    def balance(self):
-        return reduce(lambda balance,transaction: balance+transaction.value(), self._transactions, 0)
 
     def register(self,aTransaction):
         self._transactions.append(aTransaction)
@@ -78,9 +77,6 @@ class ReceptiveAccount(SummarizingAccount):
 class Portfolio(SummarizingAccount):
     def __init__(self):
         self._accounts = []
-
-    def balance(self):
-        return reduce(lambda balance,account: balance + account.balance(), self._accounts, 0)
 
     def accounts(self):
         return reduce(lambda total_accounts, account: total_accounts + account.accounts(), self._accounts, [])
