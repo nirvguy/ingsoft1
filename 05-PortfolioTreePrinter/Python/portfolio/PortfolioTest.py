@@ -41,6 +41,9 @@ class Deposit(AccountTransaction):
     def investmentNet(self):
         return 0
 
+    def investmentEarnings(self):
+        return 0
+
 class Withdraw(AccountTransaction):
     def __init__(self,value):
         self._value = value
@@ -60,6 +63,9 @@ class Withdraw(AccountTransaction):
     def investmentNet(self):
         return 0
 
+    def investmentEarnings(self):
+        return 0
+
 class Transfer:
     def __init__(self, transaction):
         self._transaction = transaction
@@ -74,6 +80,9 @@ class Transfer:
         return "Transferencia por {}".format(self._transaction.accountTransactionValue())
 
     def investmentNet(self):
+        return 0
+
+    def investmentEarnings(self):
         return 0
 
     @classmethod
@@ -123,6 +132,9 @@ class ReceptiveAccount(SummarizingAccount):
 
     def investmentNet(self):
         return sum(transaction.investmentNet() for transaction in self._transactions)
+
+    def investmentEarnings(self):
+        return sum(transaction.investmentEarnings() for transaction in self._transactions)
 
 class Portfolio(SummarizingAccount):
     def __init__(self):
@@ -193,6 +205,9 @@ class CertificateOfDeposit(AccountTransaction):
 
     def investmentNet(self):
         return self.value()
+
+    def investmentEarnings(self):
+        return self.earnings()
 
     @classmethod
     def registerFor(cls, value, numberOfDays, tna, account):
@@ -438,7 +453,7 @@ class PortfolioTests(unittest.TestCase):
         self.assertEquals(investmentEarnings,self.investmentEarnings(account))
 
     def investmentEarnings(self, account):
-        pass
+        return account.investmentEarnings()
 
     def test23AccountSummaryShouldWorkWithCertificateOfDeposit(self):
         fromAccount = ReceptiveAccount ()
