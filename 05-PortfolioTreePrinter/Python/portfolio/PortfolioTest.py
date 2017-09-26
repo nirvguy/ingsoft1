@@ -29,6 +29,9 @@ class Deposit(AccountTransaction):
     def value(self):
         return self._value
 
+    def accountTransferNet(value):
+        return 0
+
     def accountTransactionValue(self):
         return self.value()
 
@@ -42,6 +45,9 @@ class Withdraw(AccountTransaction):
     def value(self):
         return self._value
 
+    def accountTransferNet(value):
+        return 0
+
     def accountTransactionValue(self):
         return -self.value()
 
@@ -53,6 +59,9 @@ class Transfer:
         self._transaction = transaction
 
     def accountTransactionValue(self):
+        return self._transaction.accountTransactionValue()
+
+    def accountTransferNet(self):
         return self._transaction.accountTransactionValue()
 
     def textForTransaction(self):
@@ -99,6 +108,9 @@ class ReceptiveAccount(SummarizingAccount):
 
     def textForTransactions(self):
         return [transaction.textForTransaction() for transaction in self._transactions]
+
+    def accountTransferNet(self):
+        return sum(transaction.accountTransferNet() for transaction in self._transactions)
 
 class Portfolio(SummarizingAccount):
     def __init__(self):
@@ -376,7 +388,7 @@ class PortfolioTests(unittest.TestCase):
         self.assertEquals(-150.0,self.accountTransferNet(toAccount))
 
     def accountTransferNet(self, account):
-        pass
+        return account.accountTransferNet()
 
     def test21CertificateOfDepositShouldWithdrawInvestmentValue(self):
         account = ReceptiveAccount ()
