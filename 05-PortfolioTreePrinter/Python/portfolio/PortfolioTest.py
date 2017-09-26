@@ -26,12 +26,18 @@ class Deposit(AccountTransaction):
     def value(self):
         return self._value
 
+    def updateBalance(self, balance):
+        return balance + self._value
+
 class Withdraw(AccountTransaction):
     def __init__(self,value):
         self._value = value
 
     def value(self):
         return self._value
+
+    def updateBalance(self, balance):
+        return balance - self._value
 
 class Transfer:
     def __init__(self,value, fromAccount, toAccount):
@@ -62,7 +68,7 @@ class ReceptiveAccount(SummarizingAccount):
         self._transactions=[]
 
     def balance(self):
-        return reduce(lambda balance,transaction: balance+transaction.value(), self._transactions, 0)
+        return reduce(lambda balance,transaction: transaction.updateBalance(balance), self._transactions, 0)
 
     def register(self,aTransaction):
         self._transactions.append(aTransaction)
