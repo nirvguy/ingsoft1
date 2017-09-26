@@ -212,9 +212,11 @@ class TransactionReducer:
         pass
 
     def reduce(self):
-        pass
+        return self.__class__.reducer(transaction.visit(self) for transaction in self._account.transactions())
 
 class BalanceReducer(TransactionReducer):
+    reducer = sum
+
     def deposit(self, transaction):
         return transaction.value()
 
@@ -227,10 +229,9 @@ class BalanceReducer(TransactionReducer):
     def certificateOfDeposit(self, transaction):
         return -transaction.value()
 
-    def reduce(self):
-        return sum(transaction.visit(self) for transaction in self._account.transactions())
-
 class SummaryReducer(TransactionReducer):
+    reducer = list
+
     def deposit(self, transaction):
         return "Deposito por {}".format(transaction.value())
 
@@ -243,10 +244,9 @@ class SummaryReducer(TransactionReducer):
     def certificateOfDeposit(self, transaction):
         return "Plazo fijo por {} durante {} dias a una tna de {}".format(transaction.value(), transaction.numberOfDays(), transaction.tna())
 
-    def reduce(self):
-        return [transaction.visit(self) for transaction in self._account.transactions()]
-
 class AccountTransferNetReducer(TransactionReducer):
+    reducer = sum
+
     def deposit(self, transaction):
         return 0
 
@@ -259,10 +259,9 @@ class AccountTransferNetReducer(TransactionReducer):
     def certificateOfDeposit(self, transaction):
         return 0
 
-    def reduce(self):
-        return sum(transaction.visit(self) for transaction in self._account.transactions())
-
 class InvestmentNetReducer(TransactionReducer):
+    reducer = sum
+
     def deposit(self, transaction):
         return 0
 
@@ -275,10 +274,8 @@ class InvestmentNetReducer(TransactionReducer):
     def certificateOfDeposit(self, transaction):
         return transaction.value()
 
-    def reduce(self):
-        return sum(transaction.visit(self) for transaction in self._account.transactions())
-
 class InvestmentEarningsReducer(TransactionReducer):
+    reducer = sum
     def deposit(self, transaction):
         return 0
 
@@ -290,9 +287,6 @@ class InvestmentEarningsReducer(TransactionReducer):
 
     def certificateOfDeposit(self, transaction):
         return transaction.earnings()
-
-    def reduce(self):
-        return sum(transaction.visit(self) for transaction in self._account.transactions())
 
 class PortfolioTests(unittest.TestCase):
 
