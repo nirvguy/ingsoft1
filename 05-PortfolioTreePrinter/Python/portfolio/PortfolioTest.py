@@ -203,6 +203,9 @@ class CertificateOfDeposit(AccountTransaction):
     def accountTransactionValue(self):
         return -self.value()
 
+    def textForTransaction(self):
+        return "Plazo fijo por {} durante {} dias a una tna de {}".format(self._value, self._numberOfDays, self._tna)
+
     def investmentNet(self):
         return self.value()
 
