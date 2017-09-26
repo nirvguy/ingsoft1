@@ -38,6 +38,9 @@ class Deposit(AccountTransaction):
     def textForTransaction(self):
         return "Deposito por {}".format(self.value())
 
+    def investmentNet(self):
+        return 0
+
 class Withdraw(AccountTransaction):
     def __init__(self,value):
         self._value = value
@@ -54,6 +57,9 @@ class Withdraw(AccountTransaction):
     def textForTransaction(self):
         return "Extraccion por {}".format(self.value())
 
+    def investmentNet(self):
+        return 0
+
 class Transfer:
     def __init__(self, transaction):
         self._transaction = transaction
@@ -66,6 +72,9 @@ class Transfer:
 
     def textForTransaction(self):
         return "Transferencia por {}".format(self._transaction.accountTransactionValue())
+
+    def investmentNet(self):
+        return 0
 
     @classmethod
     def registerFor(cls, value, fromAccount, toAccount):
@@ -111,6 +120,9 @@ class ReceptiveAccount(SummarizingAccount):
 
     def accountTransferNet(self):
         return sum(transaction.accountTransferNet() for transaction in self._transactions)
+
+    def investmentNet(self):
+        return sum(transaction.investmentNet() for transaction in self._transactions)
 
 class Portfolio(SummarizingAccount):
     def __init__(self):
@@ -172,6 +184,15 @@ class CertificateOfDeposit(AccountTransaction):
 
     def tna(self):
         return self._tna
+
+    def accountTransferNet(self):
+        return 0
+
+    def accountTransactionValue(self):
+        return -self.value()
+
+    def investmentNet(self):
+        return self.value()
 
     @classmethod
     def registerFor(cls, value, numberOfDays, tna, account):
@@ -404,7 +425,7 @@ class PortfolioTests(unittest.TestCase):
 
 
     def investmentNet(self,account):
-        pass
+        return account.investmentNet()
 
     def test22ShouldBeAbleToQueryInvestmentEarnings(self):
         account = ReceptiveAccount ()
