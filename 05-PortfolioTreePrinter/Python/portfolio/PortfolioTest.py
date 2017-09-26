@@ -29,11 +29,11 @@ class Deposit(AccountTransaction):
     def value(self):
         return self._value
 
-    def updateBalance(self, balance, account):
-        return balance + self._value
+    def accountTransactionValue(self):
+        return self.value()
 
-    def textForTransaction(self, acocunt):
-        return "Deposito por {}".format(self._value)
+    def textForTransaction(self):
+        return "Deposito por {}".format(self.value())
 
 class Withdraw(AccountTransaction):
     def __init__(self,value):
@@ -42,35 +42,26 @@ class Withdraw(AccountTransaction):
     def value(self):
         return self._value
 
-    def updateBalance(self, balance, account):
-        return balance - self._value
+    def accountTransactionValue(self):
+        return -self.value()
 
-    def textForTransaction(self, acocunt):
-        return "Extraccion por {}".format(self._value)
+    def textForTransaction(self):
+        return "Extraccion por {}".format(self.value())
 
 class Transfer:
-    def __init__(self,value, fromAccount, toAccount):
-        self._value = value
-        self._fromAccount = fromAccount
-        self._toAccount = toAccount
+    def __init__(self, transaction):
+        self._transaction = transaction
 
-    def updateBalance(self, balance, account):
-        if self._fromAccount == account:
-            return balance - self._value
-        else:
-            return balance + self._value
+    def accountTransactionValue(self):
+        return self._transaction.accountTransactionValue()
 
-    def textForTransaction(self, account):
-        if self._fromAccount == account:
-            value = -self._value
-        else:
-            value = self._value
-        return "Transferencia por {}".format(value)
+    def textForTransaction(self):
+        return "Transferencia por {}".format(self._transaction.accountTransactionValue())
 
     @classmethod
     def registerFor(cls, value, fromAccount, toAccount):
-        fromAccount.register(cls(value, fromAccount, toAccount))
-        toAccount.register(cls(value, fromAccount, toAccount))
+        fromAccount.register(cls(Withdraw(value)))
+        toAccount.register(cls(Deposit(value)))
 
 class SummarizingAccount:
 
@@ -91,7 +82,7 @@ class ReceptiveAccount(SummarizingAccount):
         self._transactions=[]
 
     def balance(self):
-        return reduce(lambda balance,transaction: transaction.updateBalance(balance, self), self._transactions, 0)
+        return sum(transaction.accountTransactionValue() for transaction in self._transactions)
 
     def register(self,aTransaction):
         self._transactions.append(aTransaction)
@@ -107,7 +98,7 @@ class ReceptiveAccount(SummarizingAccount):
         return copy(self._transactions)
 
     def textForTransactions(self):
-        [transaction.textForTransaction(self) for transaction in self._transactions]
+        return [transaction.textForTransaction() for transaction in self._transactions]
 
 class Portfolio(SummarizingAccount):
     def __init__(self):
