@@ -14,6 +14,9 @@ class AccountTransaction:
     def value(self):
         pass
 
+    def updateBalance(self, balance, account):
+        pass
+
     @classmethod
     def registerForOn(cls,value,account):
         return account.register(cls(value))
@@ -26,7 +29,7 @@ class Deposit(AccountTransaction):
     def value(self):
         return self._value
 
-    def updateBalance(self, balance):
+    def updateBalance(self, balance, account):
         return balance + self._value
 
 class Withdraw(AccountTransaction):
@@ -36,7 +39,7 @@ class Withdraw(AccountTransaction):
     def value(self):
         return self._value
 
-    def updateBalance(self, balance):
+    def updateBalance(self, balance, account):
         return balance - self._value
 
 class Transfer:
@@ -45,9 +48,16 @@ class Transfer:
         self._fromAccount = fromAccount
         self._toAccount = toAccount
 
+    def updateBalance(self, balance, account):
+        if self._fromAccount == account:
+            return balance - self._value
+        else:
+            return balance + self._value
+
     @classmethod
     def registerFor(cls, value, fromAccount, toAccount):
-        pass
+        fromAccount.register(cls(value, fromAccount, toAccount))
+        toAccount.register(cls(value, fromAccount, toAccount))
 
 class SummarizingAccount:
 
@@ -68,7 +78,7 @@ class ReceptiveAccount(SummarizingAccount):
         self._transactions=[]
 
     def balance(self):
-        return reduce(lambda balance,transaction: transaction.updateBalance(balance), self._transactions, 0)
+        return reduce(lambda balance,transaction: transaction.updateBalance(balance, self), self._transactions, 0)
 
     def register(self,aTransaction):
         self._transactions.append(aTransaction)
