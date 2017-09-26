@@ -29,7 +29,7 @@ class Deposit(AccountTransaction):
     def value(self):
         return self._value
 
-    def accountTransferNet(value):
+    def accountTransferNet(self):
         return 0
 
     def accountTransactionValue(self):
@@ -45,7 +45,7 @@ class Withdraw(AccountTransaction):
     def value(self):
         return self._value
 
-    def accountTransferNet(value):
+    def accountTransferNet(self):
         return 0
 
     def accountTransactionValue(self):
