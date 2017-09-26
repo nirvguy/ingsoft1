@@ -35,14 +35,8 @@ class Deposit(AccountTransaction):
     def accountTransactionValue(self):
         return self.value()
 
-    def textForTransaction(self):
-        return "Deposito por {}".format(self.value())
-
-    def investmentNet(self):
-        return 0
-
-    def investmentEarnings(self):
-        return 0
+    def visit(self, reducer):
+        return reducer.deposit(self)
 
 class Withdraw(AccountTransaction):
     def __init__(self,value):
@@ -57,33 +51,21 @@ class Withdraw(AccountTransaction):
     def accountTransactionValue(self):
         return -self.value()
 
-    def textForTransaction(self):
-        return "Extraccion por {}".format(self.value())
-
-    def investmentNet(self):
-        return 0
-
-    def investmentEarnings(self):
-        return 0
+    def visit(self, reducer):
+        return reducer.withdraw(self)
 
 class Transfer:
     def __init__(self, transaction):
         self._transaction = transaction
 
-    def accountTransactionValue(self):
-        return self._transaction.accountTransactionValue()
-
     def accountTransferNet(self):
         return self._transaction.accountTransactionValue()
 
-    def textForTransaction(self):
-        return "Transferencia por {}".format(self._transaction.accountTransactionValue())
+    def accountTransactionValue(self):
+        return self._transaction.accountTransactionValue()
 
-    def investmentNet(self):
-        return 0
-
-    def investmentEarnings(self):
-        return 0
+    def visit(self, reducer):
+        return reducer.transfer(self)
 
     @classmethod
     def registerFor(cls, value, fromAccount, toAccount):
@@ -109,7 +91,7 @@ class ReceptiveAccount(SummarizingAccount):
         self._transactions=[]
 
     def balance(self):
-        return sum(transaction.accountTransactionValue() for transaction in self._transactions)
+        return BalanceReducer(self).reduce()
 
     def register(self,aTransaction):
         self._transactions.append(aTransaction)
@@ -125,16 +107,16 @@ class ReceptiveAccount(SummarizingAccount):
         return copy(self._transactions)
 
     def textForTransactions(self):
-        return [transaction.textForTransaction() for transaction in self._transactions]
+        return SummaryReducer(self).reduce()
 
     def accountTransferNet(self):
-        return sum(transaction.accountTransferNet() for transaction in self._transactions)
+        return AccountTransferNetReducer(self).reduce()
 
     def investmentNet(self):
-        return sum(transaction.investmentNet() for transaction in self._transactions)
+        return InvestmentNetReducer(self).reduce()
 
     def investmentEarnings(self):
-        return sum(transaction.investmentEarnings() for transaction in self._transactions)
+        return InvestmentEarningsReducer(self).reduce()
 
 class Portfolio(SummarizingAccount):
     def __init__(self):
@@ -203,14 +185,8 @@ class CertificateOfDeposit(AccountTransaction):
     def accountTransactionValue(self):
         return -self.value()
 
-    def textForTransaction(self):
-        return "Plazo fijo por {} durante {} dias a una tna de {}".format(self._value, self._numberOfDays, self._tna)
-
-    def investmentNet(self):
-        return self.value()
-
-    def investmentEarnings(self):
-        return self.earnings()
+    def visit(self, reducer):
+        return reducer.certificateOfDeposit(self)
 
     @classmethod
     def registerFor(cls, value, numberOfDays, tna, account):
@@ -219,6 +195,104 @@ class CertificateOfDeposit(AccountTransaction):
 
         return certificateOfDeposit
 
+class TransactionReducer:
+    def __init__(self, account):
+        self._account = account
+
+    def deposit(self, transaction):
+        pass
+
+    def withdraw(self, transaction):
+        pass
+
+    def transfer(self, transaction):
+        pass
+
+    def certificateOfDeposit(self, transaction):
+        pass
+
+    def reduce(self):
+        pass
+
+class BalanceReducer(TransactionReducer):
+    def deposit(self, transaction):
+        return transaction.value()
+
+    def withdraw(self, transaction):
+        return -transaction.value()
+
+    def transfer(self, transaction):
+        return transaction.accountTransactionValue()
+
+    def certificateOfDeposit(self, transaction):
+        return -transaction.value()
+
+    def reduce(self):
+        return sum(transaction.visit(self) for transaction in self._account.transactions())
+
+class SummaryReducer(TransactionReducer):
+    def deposit(self, transaction):
+        return "Deposito por {}".format(transaction.value())
+
+    def withdraw(self, transaction):
+        return "Extraccion por {}".format(transaction.value())
+
+    def transfer(self, transaction):
+        return "Transferencia por {}".format(transaction.accountTransactionValue())
+
+    def certificateOfDeposit(self, transaction):
+        return "Plazo fijo por {} durante {} dias a una tna de {}".format(transaction.value(), transaction.numberOfDays(), transaction.tna())
+
+    def reduce(self):
+        return [transaction.visit(self) for transaction in self._account.transactions()]
+
+class AccountTransferNetReducer(TransactionReducer):
+    def deposit(self, transaction):
+        return 0
+
+    def withdraw(self, transaction):
+        return 0
+
+    def transfer(self, transaction):
+        return transaction.accountTransferNet()
+
+    def certificateOfDeposit(self, transaction):
+        return 0
+
+    def reduce(self):
+        return sum(transaction.visit(self) for transaction in self._account.transactions())
+
+class InvestmentNetReducer(TransactionReducer):
+    def deposit(self, transaction):
+        return 0
+
+    def withdraw(self, transaction):
+        return 0
+
+    def transfer(self, transaction):
+        return 0
+
+    def certificateOfDeposit(self, transaction):
+        return transaction.value()
+
+    def reduce(self):
+        return sum(transaction.visit(self) for transaction in self._account.transactions())
+
+class InvestmentEarningsReducer(TransactionReducer):
+    def deposit(self, transaction):
+        return 0
+
+    def withdraw(self, transaction):
+        return 0
+
+    def transfer(self, transaction):
+        return 0
+
+    def certificateOfDeposit(self, transaction):
+        return transaction.earnings()
+
+    def reduce(self):
+        return sum(transaction.visit(self) for transaction in self._account.transactions())
 
 class PortfolioTests(unittest.TestCase):
 
