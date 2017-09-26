@@ -32,6 +32,9 @@ class Deposit(AccountTransaction):
     def updateBalance(self, balance, account):
         return balance + self._value
 
+    def textForTransaction(self, acocunt):
+        return "Deposito por {}".format(self._value)
+
 class Withdraw(AccountTransaction):
     def __init__(self,value):
         self._value = value
@@ -41,6 +44,9 @@ class Withdraw(AccountTransaction):
 
     def updateBalance(self, balance, account):
         return balance - self._value
+
+    def textForTransaction(self, acocunt):
+        return "Extraccion por {}".format(self._value)
 
 class Transfer:
     def __init__(self,value, fromAccount, toAccount):
@@ -53,6 +59,13 @@ class Transfer:
             return balance - self._value
         else:
             return balance + self._value
+
+    def textForTransaction(self, account):
+        if self._fromAccount == account:
+            value = -self._value
+        else:
+            value = self._value
+        return "Transferencia por {}".format(value)
 
     @classmethod
     def registerFor(cls, value, fromAccount, toAccount):
@@ -92,6 +105,9 @@ class ReceptiveAccount(SummarizingAccount):
 
     def transactions(self):
         return copy(self._transactions)
+
+    def textForTransactions(self):
+        [transaction.textForTransaction(self) for transaction in self._transactions]
 
 class Portfolio(SummarizingAccount):
     def __init__(self):
@@ -354,7 +370,7 @@ class PortfolioTests(unittest.TestCase):
 
 
     def accountSummaryLines(self,fromAccount):
-        pass
+        return fromAccount.textForTransactions()
 
     def test20ShouldBeAbleToBeQueryTransferNet(self):
         fromAccount = ReceptiveAccount ()
