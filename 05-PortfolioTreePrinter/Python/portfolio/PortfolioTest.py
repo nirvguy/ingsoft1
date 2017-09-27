@@ -86,6 +86,9 @@ class SummarizingAccount:
     def transactions(self):
         pass
 
+    def reversePortofolioTreeOf(self, accountNames):
+        return list(reversed(self.portfolioTreeOf(accountNames)))
+
 class ReceptiveAccount(SummarizingAccount):
     def __init__(self):
         self._transactions=[]
@@ -616,7 +619,7 @@ class PortfolioTests(unittest.TestCase):
         self.assertEquals("composedPortfolio", lines[4])
 
     def reversePortofolioTreeOf(self, composedPortfolio, accountNames):
-        pass
+        return composedPortfolio.reversePortofolioTreeOf(accountNames)
 
 if __name__ == '__main__':
     unittest.main()
