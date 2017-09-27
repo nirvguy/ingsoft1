@@ -90,6 +90,9 @@ class ReceptiveAccount(SummarizingAccount):
     def __init__(self):
         self._transactions=[]
 
+    def portfolioTreeOf(self, accountNames):
+        return [accountNames[self]]
+
     def balance(self):
         return BalanceReducer(self).reduce()
 
@@ -121,6 +124,13 @@ class ReceptiveAccount(SummarizingAccount):
 class Portfolio(SummarizingAccount):
     def __init__(self):
         self._accounts=[]
+
+    def portfolioTreeOf(self, accountNames):
+        account_tree = [accountNames[self]]
+        for account in self._accounts:
+            account_tree.extend(map(lambda text: ' ' + text,
+                                    account.portfolioTreeOf(accountNames)))
+        return account_tree
 
     def balance(self):
         #return reduce(
@@ -580,7 +590,7 @@ class PortfolioTests(unittest.TestCase):
         self.assertEquals(" account3", lines[4])
 
     def portofolioTreeOf(self, composedPortfolio, accountNames):
-        pass
+        return composedPortfolio.portfolioTreeOf(accountNames)
 
     def test26ReversePortfolioTreePrinter(self):
         account1 = ReceptiveAccount ()
