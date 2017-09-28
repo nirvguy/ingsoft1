@@ -93,9 +93,6 @@ class ReceptiveAccount(SummarizingAccount):
     def __init__(self):
         self._transactions=[]
 
-    def portfolioTreeOf(self, accountNames):
-        return [accountNames[self]]
-
     def balance(self):
         return BalanceReducer(self).reduce()
 
@@ -112,17 +109,12 @@ class ReceptiveAccount(SummarizingAccount):
     def transactions(self):
         return copy(self._transactions)
 
+    def visit(self, treeCalculator):
+        return treeCalculator.receptive()
 
 class Portfolio(SummarizingAccount):
     def __init__(self):
         self._accounts=[]
-
-    def portfolioTreeOf(self, accountNames):
-        account_tree = [accountNames[self]]
-        for account in self._accounts:
-            account_tree.extend(map(lambda text: ' ' + text,
-                                    account.portfolioTreeOf(accountNames)))
-        return account_tree
 
     def balance(self):
         #return reduce(
@@ -153,6 +145,12 @@ class Portfolio(SummarizingAccount):
             raise Exception(self.__class__.ACCOUNT_ALREADY_MANAGED)
 
         self._accounts.append(account)
+
+    def accounts(self):
+        return self._accounts
+
+    def visit(self, treeCalculator):
+        return treeCalculator.portfolio()
 
     @classmethod
     def createWith(cls,anAccount,anotherAccount):
@@ -293,6 +291,29 @@ class InvestmentEarningsReducer(TransactionReducer):
 
     def certificateOfDeposit(self, transaction):
         return transaction.earnings()
+
+class TreeCalculator(object):
+    def __init__(self, account, accountNames):
+        self._account = account
+        self._accountNames = accountNames
+
+    def receptive(self):
+        return [self._accountNames[self._account]]
+
+    def portfolio(self):
+        account_tree = [self._accountNames[self._account]]
+        for account in self._account.accounts():
+            treeCalculator = TreeCalculator(account, self._accountNames)
+            account_tree.extend(map(lambda text: ' ' + text,
+                                    treeCalculator.tree()))
+        return account_tree
+
+    def tree(self):
+        return self._account.visit(self)
+
+class ReverseTreeCalculator(TreeCalculator):
+    def tree(self):
+        return list(reversed(super(self.__class__, self).tree()))
 
 class PortfolioTests(unittest.TestCase):
 
@@ -586,7 +607,7 @@ class PortfolioTests(unittest.TestCase):
         self.assertEquals(" account3", lines[4])
 
     def portofolioTreeOf(self, composedPortfolio, accountNames):
-        return composedPortfolio.portfolioTreeOf(accountNames)
+        return TreeCalculator(composedPortfolio, accountNames).tree()
 
     def test26ReversePortfolioTreePrinter(self):
         account1 = ReceptiveAccount ()
@@ -612,7 +633,7 @@ class PortfolioTests(unittest.TestCase):
         self.assertEquals("composedPortfolio", lines[4])
 
     def reversePortofolioTreeOf(self, composedPortfolio, accountNames):
-        return composedPortfolio.reversePortofolioTreeOf(accountNames)
+        return ReverseTreeCalculator(composedPortfolio, accountNames).tree()
 
 if __name__ == '__main__':
     unittest.main()
