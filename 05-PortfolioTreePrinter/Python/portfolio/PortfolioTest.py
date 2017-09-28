@@ -224,8 +224,12 @@ class TransactionReducer:
     def certificateOfDeposit(self, transaction):
         pass
 
+    def _mapTransactions(self):
+        return map(lambda transaction: transaction.visit(self),
+                   self._account.transactions())
+
     def reduce(self):
-        return self.__class__.reducer(transaction.visit(self) for transaction in self._account.transactions())
+        return self.__class__.reducer(self._mapTransactions())
 
 class BalanceReducer(TransactionReducer):
     reducer = sum
