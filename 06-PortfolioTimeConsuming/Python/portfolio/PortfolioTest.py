@@ -10,6 +10,7 @@
 import unittest
 import time
 from copy import copy
+from threading import Thread
 
 class AccountTransaction:
     def value(self):
@@ -385,10 +386,8 @@ class AccountSummaryWithInvestmentEarnings:
     def lines(self):
         summary = AccountSummary(self._account)
         investmentEarnings = InvestmentEarnings(self._account)
-
-        lines = summary.lines()
-        lines.append("Ganancias por " + str(investmentEarnings.value()))
-
+        lines, earnings = ParallelRunner(summary, investmentEarnings.value).run()
+        lines.append("Ganancias por {}".format(earnings))
         return lines
 
 class AccountSummaryWithAllInvestmentInformation:
@@ -399,11 +398,25 @@ class AccountSummaryWithAllInvestmentInformation:
     def lines(self):
         summary = AccountSummaryWithInvestmentEarnings(self._account)
         investmentNet = InvestmentNet(self._account)
-
-        lines = summary.lines()
-        lines.append("Inversiones por " + str(investmentNet.value()))
-
+        lines, investment = ParallelRunner(summary, investmentNet.value).run()
+        lines.append("Inversiones por {}".format(investment))
         return lines
+
+class ParallelRunner:
+    def __init__(self, summary, parallelBlock):
+        self._summary = summary
+        self._parallelBlock = parallelBlock
+
+    def run(self):
+        lines = []
+        def getSummaryLines():
+            lines.extend(self._summary.lines())
+        linesThread = Thread(None, getSummaryLines)
+        linesThread.start()
+        value = self._parallelBlock()
+        linesThread.join()
+
+        return lines, value
 
 class PortfolioTests(unittest.TestCase):
 
