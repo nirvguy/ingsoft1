@@ -112,17 +112,6 @@ class ReceptiveAccount(SummarizingAccount):
     def transactions(self):
         return copy(self._transactions)
 
-    def textForTransactions(self):
-        return SummaryReducer(self).reduce()
-
-    def accountTransferNet(self):
-        return AccountTransferNetReducer(self).reduce()
-
-    def investmentNet(self):
-        return InvestmentNetReducer(self).reduce()
-
-    def investmentEarnings(self):
-        return InvestmentEarningsReducer(self).reduce()
 
 class Portfolio(SummarizingAccount):
     def __init__(self):
@@ -497,7 +486,7 @@ class PortfolioTests(unittest.TestCase):
 
 
     def accountSummaryLines(self,fromAccount):
-        return fromAccount.textForTransactions()
+        return SummaryReducer(fromAccount).reduce()
 
     def test20ShouldBeAbleToBeQueryTransferNet(self):
         fromAccount = ReceptiveAccount ()
@@ -512,7 +501,7 @@ class PortfolioTests(unittest.TestCase):
         self.assertEquals(-150.0,self.accountTransferNet(toAccount))
 
     def accountTransferNet(self, account):
-        return account.accountTransferNet()
+        return AccountTransferNetReducer(account).reduce()
 
     def test21CertificateOfDepositShouldWithdrawInvestmentValue(self):
         account = ReceptiveAccount ()
@@ -528,7 +517,7 @@ class PortfolioTests(unittest.TestCase):
 
 
     def investmentNet(self,account):
-        return account.investmentNet()
+        return InvestmentNetReducer(account).reduce()
 
     def test22ShouldBeAbleToQueryInvestmentEarnings(self):
         account = ReceptiveAccount ()
@@ -541,7 +530,7 @@ class PortfolioTests(unittest.TestCase):
         self.assertEquals(investmentEarnings,self.investmentEarnings(account))
 
     def investmentEarnings(self, account):
-        return account.investmentEarnings()
+        return InvestmentEarningsReducer(account).reduce()
 
     def test23AccountSummaryShouldWorkWithCertificateOfDeposit(self):
         fromAccount = ReceptiveAccount ()
