@@ -386,8 +386,14 @@ class AccountSummaryWithInvestmentEarnings:
     def lines(self):
         summary = AccountSummary(self._account)
         investmentEarnings = InvestmentEarnings(self._account)
-        lines, earnings = ParallelRunner(summary, investmentEarnings.value).run()
+
+        def getSummaryLines():
+            return summary.lines()
+        linesPromise = Promise(getSummaryLines)
+        earnings = investmentEarnings.value()
+        lines = linesPromise.value()
         lines.append("Ganancias por {}".format(earnings))
+
         return lines
 
 class AccountSummaryWithAllInvestmentInformation:
@@ -398,25 +404,27 @@ class AccountSummaryWithAllInvestmentInformation:
     def lines(self):
         summary = AccountSummaryWithInvestmentEarnings(self._account)
         investmentNet = InvestmentNet(self._account)
-        lines, investment = ParallelRunner(summary, investmentNet.value).run()
+
+        def getSummaryLines():
+            return summary.lines()
+        linesPromise = Promise(getSummaryLines)
+        investment = investmentNet.value()
+        lines = linesPromise.value()
         lines.append("Inversiones por {}".format(investment))
+
         return lines
 
-class ParallelRunner:
-    def __init__(self, summary, parallelBlock):
-        self._summary = summary
-        self._parallelBlock = parallelBlock
+class Promise:
+    def __init__(self, block):
+        self._value = None
+        def fn():
+            self._value = block()
+        self._thread = Thread(None, fn)
+        self._thread.start()
 
-    def run(self):
-        lines = []
-        def getSummaryLines():
-            lines.extend(self._summary.lines())
-        linesThread = Thread(None, getSummaryLines)
-        linesThread.start()
-        value = self._parallelBlock()
-        linesThread.join()
-
-        return lines, value
+    def value(self):
+        self._thread.join()
+        return self._value
 
 class PortfolioTests(unittest.TestCase):
 
