@@ -9,8 +9,53 @@
 #
 import unittest
 
+class CabinDoorState:
+    OPENED = 0
+    CLOSED = 1
+    OPENING = 2
+    CLOSING = 3
+
+
 class ElevatorController:
-    pass
+    def __init__(self):
+        self._isIdle = True
+        self._cabinDoorState = CabinDoorState.OPENED
+        self._isCabinMoving = False
+
+    def isIdle(self):
+        return self._isIdle
+
+    def isWorking(self):
+        return not self._isIdle
+
+    def isCabinStopped(self):
+        return not self._isCabinMoving
+
+    def isCabinMoving(self):
+        return self._isCabinMoving
+
+    def isCabinDoorOpened(self):
+        return self._cabinDoorState is CabinDoorState.OPENED
+
+    def isCabinDoorClosed(self):
+        return self._cabinDoorState is CabinDoorState.CLOSED
+
+    def isCabinDoorOpening(self):
+        return self._cabinDoorState is CabinDoorState.OPENING
+
+    def isCabinDoorClosing(self):
+        return self._cabinDoorState is CabinDoorState.CLOSING
+
+    def cabinFloorNumber(self):
+        return 0
+
+    def isCabinMoving(self):
+        return False
+
+    def goUpPushedFromFloor(self, floor):
+        self._isIdle = False
+        self._cabinDoorState = CabinDoorState.CLOSING
+
 
 class ElevatorEmergency(Exception):
     pass
