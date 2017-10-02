@@ -21,6 +21,7 @@ class ElevatorController:
         self._isIdle = True
         self._cabinDoorState = CabinDoorState.OPENED
         self._isCabinMoving = False
+        self._floor = 0
 
     def isIdle(self):
         return self._isIdle
@@ -47,15 +48,21 @@ class ElevatorController:
         return self._cabinDoorState is CabinDoorState.CLOSING
 
     def cabinFloorNumber(self):
-        return 0
-
-    def isCabinMoving(self):
-        return False
+        return self._floor
 
     def goUpPushedFromFloor(self, floor):
         self._isIdle = False
         self._cabinDoorState = CabinDoorState.CLOSING
 
+    def cabinDoorClosed(self):
+        self._cabinDoorState = CabinDoorState.CLOSED
+        self._isCabinMoving = True
+
+    def cabinOnFloor(self, floor):
+        self._isIdle = False
+        self._isCabinMoving = False
+        self._cabinDoorState = CabinDoorState.OPENING
+        self._floor = floor
 
 class ElevatorEmergency(Exception):
     pass
