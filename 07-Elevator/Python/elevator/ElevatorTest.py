@@ -69,7 +69,11 @@ class ElevatorController:
         self._isIdle = True
 
     def openCabinDoor(self):
-        self._cabinDoorState = CabinDoorState.OPENED
+        if not self._isCabinMoving:
+            if self._cabinDoorState in [CabinDoorState.CLOSED, CabinDoorState.CLOSING]:
+                self._cabinDoorState = CabinDoorState.OPENING
+            else:
+                self._cabinDoorState = CabinDoorState.OPENED
 
 class ElevatorEmergency(Exception):
     pass
