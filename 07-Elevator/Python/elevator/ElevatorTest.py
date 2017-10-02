@@ -9,71 +9,132 @@
 #
 import unittest
 
-class CabinDoorState:
-    OPENED = 0
-    CLOSED = 1
-    OPENING = 2
-    CLOSING = 3
+class OpenedCabinDoor:
+    def __init__(self):
+        pass
+
+    def open(self):
+        return self
+
+    def close(self):
+        return CLOSING_CABIN_DOOR
+
+class ClosedCabinDoor:
+    def __init__(self):
+        pass
+
+    def open(self):
+        return OPENING_CABIN_DOOR
+
+    def close(self):
+        return self
+
+class OpeningCabinDoor:
+    def __init__(self):
+        pass
+
+    def open(self):
+        return OPENED_CABIN_DOOR
+
+    def close(self):
+        return CLOSING_CABIN_DOOR
+
+class ClosingCabinDoor:
+    def __init__(self):
+        pass
+
+    def open(self):
+        return OPENING_CABIN_DOOR
+
+    def close(self):
+        return CLOSED_CABIN_DOOR
+
+OPENED_CABIN_DOOR = OpenedCabinDoor()
+CLOSED_CABIN_DOOR = ClosedCabinDoor()
+OPENING_CABIN_DOOR = OpeningCabinDoor()
+CLOSING_CABIN_DOOR = ClosingCabinDoor()
+
+
+class IdleController:
+    def __init__(self):
+        pass
+
+class WorkingController:
+    def __init__(self):
+        pass
+
+IDLE_CONTROLLER = IdleController()
+WORKING_CONTROLLER = WorkingController()
+
+
+class StoppedCabin:
+    def __init__(self):
+        pass
+
+class MovingCabin:
+    def __init__(self):
+        pass
+
+STOPPED_CABIN = StoppedCabin()
+MOVING_CABIN = MovingCabin()
 
 
 class ElevatorController:
     def __init__(self):
-        self._isIdle = True
-        self._cabinDoorState = CabinDoorState.OPENED
-        self._isCabinMoving = False
+        self._cabin = STOPPED_CABIN
+        self._cabinDoor = OPENED_CABIN_DOOR
+        self._controller = IDLE_CONTROLLER
         self._floor = 0
 
     def isIdle(self):
-        return self._isIdle
+        return self._controller is IDLE_CONTROLLER
 
     def isWorking(self):
-        return not self._isIdle
+        return self._controller is WORKING_CONTROLLER
 
     def isCabinStopped(self):
-        return not self._isCabinMoving
+        return self._cabin is STOPPED_CABIN
 
     def isCabinMoving(self):
-        return self._isCabinMoving
+        return self._cabin is MOVING_CABIN
 
     def isCabinDoorOpened(self):
-        return self._cabinDoorState is CabinDoorState.OPENED
+        return self._cabinDoor is OPENED_CABIN_DOOR
 
     def isCabinDoorClosed(self):
-        return self._cabinDoorState is CabinDoorState.CLOSED
+        return self._cabinDoor is CLOSED_CABIN_DOOR
 
     def isCabinDoorOpening(self):
-        return self._cabinDoorState is CabinDoorState.OPENING
+        return self._cabinDoor is OPENING_CABIN_DOOR
 
     def isCabinDoorClosing(self):
-        return self._cabinDoorState is CabinDoorState.CLOSING
+        return self._cabinDoor is CLOSING_CABIN_DOOR
 
     def cabinFloorNumber(self):
         return self._floor
 
     def goUpPushedFromFloor(self, floor):
-        self._isIdle = False
-        self._cabinDoorState = CabinDoorState.CLOSING
+        self._cabinDoor = CLOSING_CABIN_DOOR
+        self._controller = WORKING_CONTROLLER
 
     def cabinDoorClosed(self):
-        self._cabinDoorState = CabinDoorState.CLOSED
-        self._isCabinMoving = True
+        self._cabin = MOVING_CABIN
+        self._cabinDoor = self._cabinDoor.close()
 
     def cabinOnFloor(self, floor):
-        self._isIdle = False
-        self._isCabinMoving = False
-        self._cabinDoorState = CabinDoorState.OPENING
+        self._cabin = STOPPED_CABIN
+        self._cabinDoor = OPENING_CABIN_DOOR
+        self._controller = WORKING_CONTROLLER
         self._floor = floor
 
     def cabinDoorOpened(self):
-        self._cabinDoorState = CabinDoorState.OPENED
-        self._isIdle = True
+        self._cabinDoor = OPENED_CABIN_DOOR
+        self._controller = IDLE_CONTROLLER
 
     def openCabinDoor(self):
-        if not self._isCabinMoving:
-            if self._cabinDoorState in [CabinDoorState.CLOSED, CabinDoorState.CLOSING]:
-                self._cabinDoorState = CabinDoorState.OPENING
-            else:
-                self._cabinDoorState = CabinDoorState.OPENED
+        if self._cabin is not MOVING_CABIN:
+            self._cabinDoor = self._cabinDoor.open()
+
 
 class ElevatorEmergency(Exception):
     pass
