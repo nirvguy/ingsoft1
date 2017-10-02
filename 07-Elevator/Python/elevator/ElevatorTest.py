@@ -64,6 +64,13 @@ class ElevatorController:
         self._cabinDoorState = CabinDoorState.OPENING
         self._floor = floor
 
+    def cabinDoorOpened(self):
+        self._cabinDoorState = CabinDoorState.OPENED
+        self._isIdle = True
+
+    def openCabinDoor(self):
+        self._cabinDoorState = CabinDoorState.OPENED
+
 class ElevatorEmergency(Exception):
     pass
 
