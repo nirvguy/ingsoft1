@@ -175,6 +175,9 @@ class ElevatorController:
     def isCabinDoorClosing(self):
         return self._cabinDoor.state() is CLOSING_DOOR
 
+    def isCabinWaitingForPeople(self):
+        return self._cabinDoor.state() is OPENED_DOOR
+
     def cabinFloorNumber(self):
         return self._floor
 
@@ -186,19 +189,22 @@ class ElevatorController:
 
     def cabinDoorClosed(self):
         self._cabinDoor.close()
+        self._cabin.move()
 
     def cabinOnFloor(self, floor):
         self._cabin.stop()
         self._cabinDoor.open()
         self._motor.work()
         self._floor = floor
+        self._floorQueue.pop()
 
     def cabinDoorOpened(self):
         self._cabinDoor.open()
-        self._motor.idle()
+        if len(self._floorQueue) == 0:
+            self._motor.idle()
 
     def openCabinDoor(self):
-        if self._cabin.state() is not MOVING_CABIN:
+        if self._cabin.state() is not MOVING_CABIN and self._cabinDoor.state() is not OPENING_DOOR:
             self._cabinDoor.open()
 
 
