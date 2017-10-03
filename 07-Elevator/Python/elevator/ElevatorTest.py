@@ -54,7 +54,6 @@ CLOSED_CABIN_DOOR = ClosedCabinDoor()
 OPENING_CABIN_DOOR = OpeningCabinDoor()
 CLOSING_CABIN_DOOR = ClosingCabinDoor()
 
-
 class CabinDoor:
     def __init__(self):
         self._state = OPENED_CABIN_DOOR
@@ -73,44 +72,94 @@ class IdleController:
     def __init__(self):
         pass
 
+    def stateForIdle(self):
+        return self
+
+    def stateForWork(self):
+        return WORKING_CONTROLLER
+
 class WorkingController:
     def __init__(self):
         pass
 
+    def stateForIdle(self):
+        return IDLE_CONTROLLER
+
+    def stateForWork(self):
+        return self
+
 IDLE_CONTROLLER = IdleController()
 WORKING_CONTROLLER = WorkingController()
+
+class Controller:
+    def __init__(self):
+        self._state = IDLE_CONTROLLER
+
+    def idle(self):
+        self._state = self._state.stateForIdle()
+
+    def work(self):
+        self._state = self._state.stateForWork()
+
+    def state(self):
+        return self._state
 
 
 class StoppedCabin:
     def __init__(self):
         pass
 
+    def stateForMove(self):
+        return MOVING_CABIN
+
+    def stateForStop(self):
+        return self
+
 class MovingCabin:
     def __init__(self):
         pass
 
+    def stateForMove(self):
+        return self
+
+    def stateForStop(self):
+        return STOPPED_CABIN
+
 STOPPED_CABIN = StoppedCabin()
 MOVING_CABIN = MovingCabin()
+
+class Cabin:
+    def __init__(self):
+        self._state = STOPPED_CABIN
+
+    def move(self):
+        self._state = self._state.stateForMove()
+
+    def stop(self):
+        self._state = self._state.stateForStop()
+
+    def state(self):
+        return self._state
 
 
 class ElevatorController:
     def __init__(self):
-        self._cabin = STOPPED_CABIN
+        self._cabin = Cabin()
         self._cabinDoor = CabinDoor()
-        self._controller = IDLE_CONTROLLER
+        self._controller = Controller()
         self._floor = 0
 
     def isIdle(self):
-        return self._controller is IDLE_CONTROLLER
+        return self._controller.state() is IDLE_CONTROLLER
 
     def isWorking(self):
-        return self._controller is WORKING_CONTROLLER
+        return self._controller.state() is WORKING_CONTROLLER
 
     def isCabinStopped(self):
-        return self._cabin is STOPPED_CABIN
+        return self._cabin.state() is STOPPED_CABIN
 
     def isCabinMoving(self):
-        return self._cabin is MOVING_CABIN
+        return self._cabin.state() is MOVING_CABIN
 
     def isCabinDoorOpened(self):
         return self._cabinDoor.state() is OPENED_CABIN_DOOR
@@ -128,25 +177,26 @@ class ElevatorController:
         return self._floor
 
     def goUpPushedFromFloor(self, floor):
-        self._cabinDoor.close()
-        self._controller = WORKING_CONTROLLER
+        if self._controller.state() is IDLE_CONTROLLER:
+            self._cabinDoor.close()
+        self._controller.work()
+        self._floorQueue.append(floor)
 
     def cabinDoorClosed(self):
-        self._cabin = MOVING_CABIN
         self._cabinDoor.close()
 
     def cabinOnFloor(self, floor):
-        self._cabin = STOPPED_CABIN
+        self._cabin.stop()
         self._cabinDoor.open()
-        self._controller = WORKING_CONTROLLER
+        self._controller.work()
         self._floor = floor
 
     def cabinDoorOpened(self):
         self._cabinDoor.open()
-        self._controller = IDLE_CONTROLLER
+        self._controller.idle()
 
     def openCabinDoor(self):
-        if self._cabin is not MOVING_CABIN:
+        if self._cabin.state() is not MOVING_CABIN:
             self._cabinDoor.open()
 
 
