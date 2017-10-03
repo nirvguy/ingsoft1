@@ -181,6 +181,9 @@ class ElevatorController:
     def cabinFloorNumber(self):
         return self._floor
 
+    def waitForPeopleTimedOut(self):
+        self._cabinDoor.close()
+
     def goUpPushedFromFloor(self, floor):
         if self._motor.state() is IDLE_MOTOR:
             self._cabinDoor.close()
@@ -206,6 +209,10 @@ class ElevatorController:
     def openCabinDoor(self):
         if self._cabin.state() is not MOVING_CABIN and self._cabinDoor.state() is not OPENING_DOOR:
             self._cabinDoor.open()
+
+    def closeCabinDoor(self):
+        if len(self._floorQueue) > 0:
+            self._cabinDoor.close()
 
 
 class ElevatorEmergency(Exception):
