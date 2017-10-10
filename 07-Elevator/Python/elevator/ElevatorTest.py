@@ -137,6 +137,13 @@ class Cabin:
     def __init__(self):
         self._state = STOPPED_CABIN
         self._cabinDoor = CabinDoor()
+        self._floor = 0
+
+    def floorNumber(self):
+        return self._floor
+
+    def nextFloor(self):
+        self._floor += 1
 
     def move(self):
         if self.isCabinDoorClosed():
@@ -173,7 +180,6 @@ class Cabin:
 class ElevatorController:
     def __init__(self):
         self._cabin = Cabin()
-        self._floor = 0
         self._floorQueue = deque()
         self._motor = Motor()
 
@@ -205,7 +211,7 @@ class ElevatorController:
         return self._cabin.isCabinDoorOpened()
 
     def cabinFloorNumber(self):
-        return self._floor
+        return self._cabin.floorNumber()
 
     def waitForPeopleTimedOut(self):
         self._cabin.closeDoor()
@@ -226,15 +232,14 @@ class ElevatorController:
         self._cabin.stop()
         self._cabin.openDoor()
         self._motor.work()
-        # self._floor = floor
-        self._floor += 1
-        if self._floor != floor:
+        self._cabin.nextFloor()
+        if self._cabin.floorNumber() != floor:
             raise ElevatorEmergency(Cabin.OUT_OF_SYNC_CABIN_SENSOR)
 
         if len(self._floorQueue) == 0:
             raise ElevatorEmergency(Cabin.OUT_OF_SYNC_CABIN_SENSOR)
 
-        if self._floor == self._floorQueue[0]:
+        if self._cabin.floorNumber() == self._floorQueue[0]:
             self._floorQueue.pop()
 
     def cabinDoorOpened(self):
