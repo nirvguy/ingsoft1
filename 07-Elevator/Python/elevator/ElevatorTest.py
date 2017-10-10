@@ -10,65 +10,63 @@
 import unittest
 from collections import deque
 
-class OpenedDoor:
+class CabinDoor:
     def __init__(self):
-        pass
+        self._state = OPENED_DOOR
 
-    def stateForOpen(self):
-        return self
+    def setState(self, state):
+        self._state = state
 
-    def stateForClose(self):
-        return CLOSING_DOOR
+    def open(self):
+        self._state.open(self)
+
+    def close(self):
+        self._state.close(self)
+
+    def isOpened(self):
+        return self._state is OPENED_DOOR
+
+    def isClosed(self):
+        return self._state is CLOSED_DOOR
+
+    def isOpening(self):
+        return self._state is OPENING_DOOR
+
+    def isClosing(self):
+        return self._state is CLOSING_DOOR
+
+class OpenedDoor:
+    def open(self, ctx):
+        ctx.setState(OPENED_DOOR)
+
+    def close(self, ctx):
+        ctx.setState(CLOSING_DOOR)
 
 class ClosedDoor:
-    def __init__(self):
-        pass
+    def open(self, ctx):
+        ctx.setState(OPENING_DOOR)
 
-    def stateForOpen(self):
-        return OPENING_DOOR
-
-    def stateForClose(self):
-        return self
+    def close(self, ctx):
+        ctx.setState(CLOSED_DOOR)
 
 class OpeningDoor:
-    def __init__(self):
-        pass
+    def open(self, ctx):
+        ctx.setState(OPENED_DOOR)
 
-    def stateForOpen(self):
-        return OPENED_DOOR
-
-    def stateForClose(self):
-        return CLOSING_DOOR
+    def close(self, ctx):
+        ctx.setState(CLOSING_DOOR)
 
 class ClosingDoor:
-    def __init__(self):
-        pass
+    def open(self, ctx):
+        ctx.setState(OPENING_DOOR)
 
-    def stateForOpen(self):
-        return OPENING_DOOR
-
-    def stateForClose(self):
-        return CLOSED_DOOR
+    def close(self, ctx):
+        ctx.setState(CLOSED_DOOR)
 
 OPENED_DOOR = OpenedDoor()
 CLOSED_DOOR = ClosedDoor()
 OPENING_DOOR = OpeningDoor()
 CLOSING_DOOR = ClosingDoor()
-
-class CabinDoor:
-    OUT_OF_SYNC_DOOR_SENSOR = 'Sensor de puerta desincronizado'
-
-    def __init__(self):
-        self._state = OPENED_DOOR
-
-    def open(self):
-        self._state = self._state.stateForOpen()
-
-    def close(self):
-        self._state = self._state.stateForClose()
-
-    def state(self):
-        return self._state
 
 
 class IdleMotor:
@@ -133,6 +131,7 @@ MOVING_CABIN = MovingCabin()
 
 class Cabin:
     OUT_OF_SYNC_CABIN_SENSOR = 'Sensor de cabina desincronizado'
+    OUT_OF_SYNC_DOOR_SENSOR = 'Sensor de puerta desincronizado'
 
     def __init__(self):
         self._state = STOPPED_CABIN
@@ -147,7 +146,7 @@ class Cabin:
 
     def move(self):
         if self.isDoorClosed():
-            raise ElevatorEmergency(CabinDoor.OUT_OF_SYNC_DOOR_SENSOR)
+            raise ElevatorEmergency(Cabin.OUT_OF_SYNC_DOOR_SENSOR)
 
         self._cabinDoor.close()
         self._state = self._state.stateForMove()
@@ -159,16 +158,16 @@ class Cabin:
         return self._state
 
     def isDoorOpened(self):
-        return self._cabinDoor.state() is OPENED_DOOR
+        return self._cabinDoor.isOpened()
 
     def isDoorClosed(self):
-        return self._cabinDoor.state() is CLOSED_DOOR
+        return self._cabinDoor.isClosed()
 
     def isDoorOpening(self):
-        return self._cabinDoor.state() is OPENING_DOOR
+        return self._cabinDoor.isOpening()
 
     def isDoorClosing(self):
-        return self._cabinDoor.state() is CLOSING_DOOR
+        return self._cabinDoor.isClosing()
 
     def closeDoor(self):
         self._cabinDoor.close()
@@ -224,7 +223,7 @@ class ElevatorController:
 
     def cabinDoorClosed(self):
         if len(self._floorQueue) == 0:
-            raise ElevatorEmergency(CabinDoor.OUT_OF_SYNC_DOOR_SENSOR)
+            raise ElevatorEmergency(Cabin.OUT_OF_SYNC_DOOR_SENSOR)
 
         self._cabin.move()
 
