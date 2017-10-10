@@ -56,6 +56,8 @@ OPENING_DOOR = OpeningDoor()
 CLOSING_DOOR = ClosingDoor()
 
 class CabinDoor:
+    OUT_OF_SYNC_DOOR_SENSOR = 'Sensor de puerta desincronizado'
+
     def __init__(self):
         self._state = OPENED_DOOR
 
@@ -130,6 +132,8 @@ STOPPED_CABIN = StoppedCabin()
 MOVING_CABIN = MovingCabin()
 
 class Cabin:
+    OUT_OF_SYNC_CABIN_SENSOR = 'Sensor de cabina desincronizado'
+
     def __init__(self):
         self._state = STOPPED_CABIN
 
@@ -192,9 +196,9 @@ class ElevatorController:
 
     def cabinDoorClosed(self):
         if len(self._floorQueue) == 0:
-            raise ElevatorEmergency("Sensor de puerta desincronizado")
+            raise ElevatorEmergency(CabinDoor.OUT_OF_SYNC_DOOR_SENSOR)
         if self._cabinDoor.state() is CLOSED_DOOR:
-            raise ElevatorEmergency("Sensor de puerta desincronizado")
+            raise ElevatorEmergency(CabinDoor.OUT_OF_SYNC_DOOR_SENSOR)
 
         self._cabinDoor.close()
         self._cabin.move()
@@ -206,10 +210,10 @@ class ElevatorController:
         # self._floor = floor
         self._floor += 1
         if self._floor != floor:
-            raise ElevatorEmergency("Sensor de cabina desincronizado")
+            raise ElevatorEmergency(Cabin.OUT_OF_SYNC_CABIN_SENSOR)
 
         if len(self._floorQueue) == 0:
-            raise ElevatorEmergency("Sensor de cabina desincronizado")
+            raise ElevatorEmergency(Cabin.OUT_OF_SYNC_CABIN_SENSOR)
 
         if self._floor == self._floorQueue[0]:
             self._floorQueue.pop()
