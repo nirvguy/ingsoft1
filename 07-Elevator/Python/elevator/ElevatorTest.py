@@ -37,7 +37,7 @@ class CabinDoor:
 
 class OpenedDoor:
     def open(self, ctx):
-        ctx.setState(OPENED_DOOR)
+        pass
 
     def close(self, ctx):
         ctx.setState(CLOSING_DOOR)
@@ -47,7 +47,7 @@ class ClosedDoor:
         ctx.setState(OPENING_DOOR)
 
     def close(self, ctx):
-        ctx.setState(CLOSED_DOOR)
+        pass
 
 class OpeningDoor:
     def open(self, ctx):
@@ -73,24 +73,53 @@ class StoppedCabin:
     def __init__(self):
         pass
 
-    def stateForMove(self):
-        return MOVING_CABIN
+    def nextFloor(self, cabin):
+        pass
 
-    def stateForStop(self):
-        return self
+    def move(self, cabin, targetFloor):
+        if cabin.floorNumber() < targetFloor:
+            cabin.setState(GOING_UP_CABIN)
+        elif cabin.floorNumber() > targetFloor:
+            cabin.setState(GOING_DOWN_CABIN)
 
-class MovingCabin:
+    def stop(self, cabin):
+        pass
+
+class GoingUpCabin:
     def __init__(self):
         pass
 
-    def stateForMove(self):
-        return self
+    def nextFloor(self, cabin):
+        cabin.setFloor(cabin.floorNumber() + 1)
 
-    def stateForStop(self):
-        return STOPPED_CABIN
+    def move(self, cabin, targetFloor):
+        if cabin.floorNumber() > targetFloor:
+            cabin.setState(GOING_DOWN_CABIN)
+        elif cabin.floorNumber() == targetFloor:
+            cabin.setState(STOPPED_CABIN)
+
+    def stop(self, cabin):
+        cabin.setState(STOPPED_CABIN)
+
+class GoingDownCabin:
+    def __init__(self):
+        pass
+
+    def nextFloor(self, cabin):
+        cabin.setFloor(cabin.floorNumber() - 1)
+
+    def move(self, cabin, targetFloor):
+        if cabin.floorNumber() < targetFloor:
+            cabin.setState(GOING_UP_CABIN)
+        elif cabin.floorNumber() == targetFloor:
+            cabin.setState(STOPPED_CABIN)
+
+    def stop(self, cabin):
+        cabin.setState(STOPPED_CABIN)
 
 STOPPED_CABIN = StoppedCabin()
-MOVING_CABIN = MovingCabin()
+GOING_UP_CABIN = GoingUpCabin()
+GOING_DOWN_CABIN = GoingDownCabin()
 
 class Cabin:
     OUT_OF_SYNC_CABIN_SENSOR = 'Sensor de cabina desincronizado'
@@ -101,24 +130,33 @@ class Cabin:
         self._cabinDoor = CabinDoor()
         self._floor = 0
 
+    def setState(self, state):
+        self._state = state
+
+    def setFloor(self, floor):
+        self._floor = floor
+
     def floorNumber(self):
         return self._floor
 
     def nextFloor(self):
-        self._floor += 1
+        self._state.nextFloor(self)
 
-    def move(self):
+    def move(self, targetFloor):
         if self.isDoorClosed():
             raise ElevatorEmergency(Cabin.OUT_OF_SYNC_DOOR_SENSOR)
 
         self._cabinDoor.close()
-        self._state = self._state.stateForMove()
+        self._state.move(self, targetFloor)
 
     def stop(self):
-        self._state = self._state.stateForStop()
+        self._state.stop(self)
 
-    def state(self):
-        return self._state
+    def isMoving(self):
+        return self._state is not STOPPED_CABIN
+
+    def isStopped(self):
+        return self._state is STOPPED_CABIN
 
     def isDoorOpened(self):
         return self._cabinDoor.isOpened()
@@ -148,13 +186,13 @@ class ElevatorController:
         return not self.isWorking()
 
     def isWorking(self):
-        return self._cabin.state() is MOVING_CABIN or self._cabin.isDoorOpening() or self._cabin.isDoorClosing() or len(self._floorQueue) > 0
+        return self._cabin.isMoving() or self._cabin.isDoorOpening() or self._cabin.isDoorClosing() or len(self._floorQueue) > 0
 
     def isCabinStopped(self):
-        return self._cabin.state() is STOPPED_CABIN
+        return self._cabin.isStopped()
 
     def isCabinMoving(self):
-        return self._cabin.state() is MOVING_CABIN
+        return self._cabin.isMoving()
 
     def isCabinDoorOpened(self):
         return self._cabin.isDoorOpened()
@@ -186,26 +224,26 @@ class ElevatorController:
         if len(self._floorQueue) == 0:
             raise ElevatorEmergency(Cabin.OUT_OF_SYNC_DOOR_SENSOR)
 
-        self._cabin.move()
+        self._cabin.move(self._floorQueue[0])
 
     def cabinOnFloor(self, floor):
-        self._cabin.stop()
-        self._cabin.openDoor()
-        self._cabin.nextFloor()
-        if self._cabin.floorNumber() != floor:
-            raise ElevatorEmergency(Cabin.OUT_OF_SYNC_CABIN_SENSOR)
-
         if len(self._floorQueue) == 0:
             raise ElevatorEmergency(Cabin.OUT_OF_SYNC_CABIN_SENSOR)
 
+        self._cabin.nextFloor()
+        self._cabin.stop()
+        self._cabin.openDoor()
+        if self._cabin.floorNumber() != floor:
+            raise ElevatorEmergency(Cabin.OUT_OF_SYNC_CABIN_SENSOR)
+
         if self._cabin.floorNumber() == self._floorQueue[0]:
-            self._floorQueue.pop()
+            self._floorQueue.popleft()
 
     def cabinDoorOpened(self):
         self._cabin.openDoor()
 
     def openCabinDoor(self):
-        if self._cabin.state() is not MOVING_CABIN and not self._cabin.isDoorOpening():
+        if self._cabin.isStopped() and not self._cabin.isDoorOpening():
             self._cabin.openDoor()
 
     def closeCabinDoor(self):
