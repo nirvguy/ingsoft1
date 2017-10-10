@@ -69,43 +69,6 @@ OPENING_DOOR = OpeningDoor()
 CLOSING_DOOR = ClosingDoor()
 
 
-class IdleMotor:
-    def __init__(self):
-        pass
-
-    def stateForIdle(self):
-        return self
-
-    def stateForWork(self):
-        return WORKING_MOTOR
-
-class WorkingMotor:
-    def __init__(self):
-        pass
-
-    def stateForIdle(self):
-        return IDLE_MOTOR
-
-    def stateForWork(self):
-        return self
-
-IDLE_MOTOR = IdleMotor()
-WORKING_MOTOR = WorkingMotor()
-
-class Motor:
-    def __init__(self):
-        self._state = IDLE_MOTOR
-
-    def idle(self):
-        self._state = self._state.stateForIdle()
-
-    def work(self):
-        self._state = self._state.stateForWork()
-
-    def state(self):
-        return self._state
-
-
 class StoppedCabin:
     def __init__(self):
         pass
@@ -180,13 +143,12 @@ class ElevatorController:
     def __init__(self):
         self._cabin = Cabin()
         self._floorQueue = deque()
-        self._motor = Motor()
 
     def isIdle(self):
-        return self._motor.state() is IDLE_MOTOR
+        return not self.isWorking()
 
     def isWorking(self):
-        return self._motor.state() is WORKING_MOTOR
+        return self._cabin.state() is MOVING_CABIN or self._cabin.isDoorOpening() or self._cabin.isDoorClosing() or len(self._floorQueue) > 0
 
     def isCabinStopped(self):
         return self._cabin.state() is STOPPED_CABIN
@@ -216,9 +178,8 @@ class ElevatorController:
         self._cabin.closeDoor()
 
     def goUpPushedFromFloor(self, floor):
-        if self._motor.state() is IDLE_MOTOR:
+        if self.isIdle():
             self._cabin.closeDoor()
-        self._motor.work()
         self._floorQueue.append(floor)
 
     def cabinDoorClosed(self):
@@ -230,7 +191,6 @@ class ElevatorController:
     def cabinOnFloor(self, floor):
         self._cabin.stop()
         self._cabin.openDoor()
-        self._motor.work()
         self._cabin.nextFloor()
         if self._cabin.floorNumber() != floor:
             raise ElevatorEmergency(Cabin.OUT_OF_SYNC_CABIN_SENSOR)
@@ -243,8 +203,6 @@ class ElevatorController:
 
     def cabinDoorOpened(self):
         self._cabin.openDoor()
-        if len(self._floorQueue) == 0:
-            self._motor.idle()
 
     def openCabinDoor(self):
         if self._cabin.state() is not MOVING_CABIN and not self._cabin.isDoorOpening():
