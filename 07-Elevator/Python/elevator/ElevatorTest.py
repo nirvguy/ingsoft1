@@ -193,6 +193,8 @@ class ElevatorController:
     def cabinDoorClosed(self):
         if len(self._floorQueue) == 0:
             raise ElevatorEmergency("Sensor de puerta desincronizado")
+        if self._cabinDoor.state() is CLOSED_DOOR:
+            raise ElevatorEmergency("Sensor de puerta desincronizado")
 
         self._cabinDoor.close()
         self._cabin.move()
@@ -208,7 +210,9 @@ class ElevatorController:
 
         if len(self._floorQueue) == 0:
             raise ElevatorEmergency("Sensor de cabina desincronizado")
-        self._floorQueue.pop()
+
+        if self._floor == self._floorQueue[0]:
+            self._floorQueue.pop()
 
     def cabinDoorOpened(self):
         self._cabinDoor.open()
