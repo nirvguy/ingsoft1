@@ -146,7 +146,7 @@ class Cabin:
         self._floor += 1
 
     def move(self):
-        if self.isCabinDoorClosed():
+        if self.isDoorClosed():
             raise ElevatorEmergency(CabinDoor.OUT_OF_SYNC_DOOR_SENSOR)
 
         self._cabinDoor.close()
@@ -158,16 +158,16 @@ class Cabin:
     def state(self):
         return self._state
 
-    def isCabinDoorOpened(self):
+    def isDoorOpened(self):
         return self._cabinDoor.state() is OPENED_DOOR
 
-    def isCabinDoorClosed(self):
+    def isDoorClosed(self):
         return self._cabinDoor.state() is CLOSED_DOOR
 
-    def isCabinDoorOpening(self):
+    def isDoorOpening(self):
         return self._cabinDoor.state() is OPENING_DOOR
 
-    def isCabinDoorClosing(self):
+    def isDoorClosing(self):
         return self._cabinDoor.state() is CLOSING_DOOR
 
     def closeDoor(self):
@@ -196,19 +196,19 @@ class ElevatorController:
         return self._cabin.state() is MOVING_CABIN
 
     def isCabinDoorOpened(self):
-        return self._cabin.isCabinDoorOpened()
+        return self._cabin.isDoorOpened()
 
     def isCabinDoorClosed(self):
-        return self._cabin.isCabinDoorClosed()
+        return self._cabin.isDoorClosed()
 
     def isCabinDoorOpening(self):
-        return self._cabin.isCabinDoorOpening()
+        return self._cabin.isDoorOpening()
 
     def isCabinDoorClosing(self):
-        return self._cabin.isCabinDoorClosing()
+        return self._cabin.isDoorClosing()
 
     def isCabinWaitingForPeople(self):
-        return self._cabin.isCabinDoorOpened()
+        return self._cabin.isDoorOpened()
 
     def cabinFloorNumber(self):
         return self._cabin.floorNumber()
@@ -248,7 +248,7 @@ class ElevatorController:
             self._motor.idle()
 
     def openCabinDoor(self):
-        if self._cabin.state() is not MOVING_CABIN and not self._cabin.isCabinDoorOpening():
+        if self._cabin.state() is not MOVING_CABIN and not self._cabin.isDoorOpening():
             self._cabin.openDoor()
 
     def closeCabinDoor(self):
