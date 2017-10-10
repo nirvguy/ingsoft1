@@ -191,6 +191,9 @@ class ElevatorController:
         self._floorQueue.append(floor)
 
     def cabinDoorClosed(self):
+        if len(self._floorQueue) == 0:
+            raise ElevatorEmergency("Sensor de puerta desincronizado")
+
         self._cabinDoor.close()
         self._cabin.move()
 
