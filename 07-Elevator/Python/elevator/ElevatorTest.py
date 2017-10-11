@@ -92,12 +92,6 @@ class GoingUpCabin:
     def nextFloor(self, cabin):
         cabin.setFloor(cabin.floorNumber() + 1)
 
-    def move(self, cabin, targetFloor):
-        if cabin.floorNumber() > targetFloor:
-            cabin.toState(GOING_DOWN_CABIN)
-        elif cabin.floorNumber() == targetFloor:
-            cabin.toState(STOPPED_CABIN)
-
     def stop(self, cabin):
         cabin.toState(STOPPED_CABIN)
 
@@ -107,12 +101,6 @@ class GoingDownCabin:
 
     def nextFloor(self, cabin):
         cabin.setFloor(cabin.floorNumber() - 1)
-
-    def move(self, cabin, targetFloor):
-        if cabin.floorNumber() < targetFloor:
-            cabin.toState(GOING_UP_CABIN)
-        elif cabin.floorNumber() == targetFloor:
-            cabin.toState(STOPPED_CABIN)
 
     def stop(self, cabin):
         cabin.toState(STOPPED_CABIN)
