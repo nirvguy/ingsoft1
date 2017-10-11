@@ -85,25 +85,17 @@ class StoppedCabin:
     def stop(self, cabin):
         pass
 
-class GoingUpCabin:
-    def __init__(self):
-        pass
+class MovingCabin:
+    def stop(self, cabin):
+        cabin.toState(STOPPED_CABIN)
 
+class GoingUpCabin(MovingCabin):
     def nextFloor(self, cabin):
         cabin.setFloor(cabin.floorNumber() + 1)
 
-    def stop(self, cabin):
-        cabin.toState(STOPPED_CABIN)
-
-class GoingDownCabin:
-    def __init__(self):
-        pass
-
+class GoingDownCabin(MovingCabin):
     def nextFloor(self, cabin):
         cabin.setFloor(cabin.floorNumber() - 1)
-
-    def stop(self, cabin):
-        cabin.toState(STOPPED_CABIN)
 
 STOPPED_CABIN = StoppedCabin()
 GOING_UP_CABIN = GoingUpCabin()
