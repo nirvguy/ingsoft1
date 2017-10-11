@@ -35,12 +35,18 @@ class CabinDoor:
     def isClosing(self):
         return self._state is CLOSING_DOOR
 
+    def openOnlyWhenNotOpening(self):
+        return self._state.openOnlyWhenNotOpening(self)
+
 class OpenedDoor:
     def open(self, cabinDoor):
         pass
 
     def close(self, cabinDoor):
         cabinDoor.toState(CLOSING_DOOR)
+
+    def openOnlyWhenNotOpening(self, cabinDoor):
+        cabinDoor.open()
 
 class ClosedDoor:
     def open(self, cabinDoor):
@@ -49,6 +55,9 @@ class ClosedDoor:
     def close(self, cabinDoor):
         pass
 
+    def openOnlyWhenNotOpening(self, cabinDoor):
+        cabinDoor.open()
+
 class OpeningDoor:
     def open(self, cabinDoor):
         cabinDoor.toState(OPENED_DOOR)
@@ -56,12 +65,18 @@ class OpeningDoor:
     def close(self, cabinDoor):
         cabinDoor.toState(CLOSING_DOOR)
 
+    def openOnlyWhenNotOpening(self, cabinDoor):
+        pass
+
 class ClosingDoor:
     def open(self, cabinDoor):
         cabinDoor.toState(OPENING_DOOR)
 
     def close(self, cabinDoor):
         cabinDoor.toState(CLOSED_DOOR)
+
+    def openOnlyWhenNotOpening(self, cabinDoor):
+        cabinDoor.open()
 
 OPENED_DOOR = OpenedDoor()
 CLOSED_DOOR = ClosedDoor()
@@ -76,6 +91,9 @@ class StoppedCabin:
     def nextFloor(self, cabin):
         pass
 
+    def openCabinDoor(self, cabin):
+        cabin.openDoorOnStoppedCabin()
+
     def move(self, cabin, targetFloor):
         if cabin.floorNumber() < targetFloor:
             cabin.toState(GOING_UP_CABIN)
@@ -88,6 +106,9 @@ class StoppedCabin:
 class MovingCabin:
     def stop(self, cabin):
         cabin.toState(STOPPED_CABIN)
+
+    def openCabinDoor(self, cabin):
+        pass
 
 class GoingUpCabin(MovingCabin):
     def nextFloor(self, cabin):
@@ -122,7 +143,7 @@ class Cabin:
     def nextFloor(self):
         self._state.nextFloor(self)
         self.stop()
-        self.openDoor()
+        self.doorOpened()
 
     def move(self, targetFloor):
         if self.isDoorClosed():
@@ -155,8 +176,14 @@ class Cabin:
     def closeDoor(self):
         self._cabinDoor.close()
 
-    def openDoor(self):
+    def doorOpened(self):
         self._cabinDoor.open()
+
+    def openDoor(self):
+        self._state.openCabinDoor(self)
+
+    def openDoorOnStoppedCabin(self):
+        self._cabinDoor.openOnlyWhenNotOpening()
 
 
 class ElevatorController:
@@ -213,6 +240,7 @@ class ElevatorController:
             raise ElevatorEmergency(Cabin.OUT_OF_SYNC_CABIN_SENSOR)
 
         self._cabin.nextFloor()
+
         if self._cabin.floorNumber() != floor:
             raise ElevatorEmergency(Cabin.OUT_OF_SYNC_CABIN_SENSOR)
 
@@ -220,11 +248,10 @@ class ElevatorController:
             self._floorQueue.popleft()
 
     def cabinDoorOpened(self):
-        self._cabin.openDoor()
+        self._cabin.doorOpened()
 
     def openCabinDoor(self):
-        if self._cabin.isStopped() and not self._cabin.isDoorOpening():
-            self._cabin.openDoor()
+        self._cabin.openDoor()
 
     def closeCabinDoor(self):
         if len(self._floorQueue) > 0:
