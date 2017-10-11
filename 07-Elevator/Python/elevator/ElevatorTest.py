@@ -121,6 +121,8 @@ class Cabin:
 
     def nextFloor(self):
         self._state.nextFloor(self)
+        self.stop()
+        self.openDoor()
 
     def move(self, targetFloor):
         if self.isDoorClosed():
@@ -211,8 +213,6 @@ class ElevatorController:
             raise ElevatorEmergency(Cabin.OUT_OF_SYNC_CABIN_SENSOR)
 
         self._cabin.nextFloor()
-        self._cabin.stop()
-        self._cabin.openDoor()
         if self._cabin.floorNumber() != floor:
             raise ElevatorEmergency(Cabin.OUT_OF_SYNC_CABIN_SENSOR)
 
