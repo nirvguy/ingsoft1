@@ -14,7 +14,7 @@ class CabinDoor:
     def __init__(self):
         self._state = OPENED_DOOR
 
-    def setState(self, state):
+    def toState(self, state):
         self._state = state
 
     def open(self):
@@ -36,32 +36,32 @@ class CabinDoor:
         return self._state is CLOSING_DOOR
 
 class OpenedDoor:
-    def open(self, ctx):
+    def open(self, cabinDoor):
         pass
 
-    def close(self, ctx):
-        ctx.setState(CLOSING_DOOR)
+    def close(self, cabinDoor):
+        cabinDoor.toState(CLOSING_DOOR)
 
 class ClosedDoor:
-    def open(self, ctx):
-        ctx.setState(OPENING_DOOR)
+    def open(self, cabinDoor):
+        cabinDoor.toState(OPENING_DOOR)
 
-    def close(self, ctx):
+    def close(self, cabinDoor):
         pass
 
 class OpeningDoor:
-    def open(self, ctx):
-        ctx.setState(OPENED_DOOR)
+    def open(self, cabinDoor):
+        cabinDoor.toState(OPENED_DOOR)
 
-    def close(self, ctx):
-        ctx.setState(CLOSING_DOOR)
+    def close(self, cabinDoor):
+        cabinDoor.toState(CLOSING_DOOR)
 
 class ClosingDoor:
-    def open(self, ctx):
-        ctx.setState(OPENING_DOOR)
+    def open(self, cabinDoor):
+        cabinDoor.toState(OPENING_DOOR)
 
-    def close(self, ctx):
-        ctx.setState(CLOSED_DOOR)
+    def close(self, cabinDoor):
+        cabinDoor.toState(CLOSED_DOOR)
 
 OPENED_DOOR = OpenedDoor()
 CLOSED_DOOR = ClosedDoor()
@@ -78,9 +78,9 @@ class StoppedCabin:
 
     def move(self, cabin, targetFloor):
         if cabin.floorNumber() < targetFloor:
-            cabin.setState(GOING_UP_CABIN)
+            cabin.toState(GOING_UP_CABIN)
         elif cabin.floorNumber() > targetFloor:
-            cabin.setState(GOING_DOWN_CABIN)
+            cabin.toState(GOING_DOWN_CABIN)
 
     def stop(self, cabin):
         pass
@@ -94,12 +94,12 @@ class GoingUpCabin:
 
     def move(self, cabin, targetFloor):
         if cabin.floorNumber() > targetFloor:
-            cabin.setState(GOING_DOWN_CABIN)
+            cabin.toState(GOING_DOWN_CABIN)
         elif cabin.floorNumber() == targetFloor:
-            cabin.setState(STOPPED_CABIN)
+            cabin.toState(STOPPED_CABIN)
 
     def stop(self, cabin):
-        cabin.setState(STOPPED_CABIN)
+        cabin.toState(STOPPED_CABIN)
 
 class GoingDownCabin:
     def __init__(self):
@@ -110,12 +110,12 @@ class GoingDownCabin:
 
     def move(self, cabin, targetFloor):
         if cabin.floorNumber() < targetFloor:
-            cabin.setState(GOING_UP_CABIN)
+            cabin.toState(GOING_UP_CABIN)
         elif cabin.floorNumber() == targetFloor:
-            cabin.setState(STOPPED_CABIN)
+            cabin.toState(STOPPED_CABIN)
 
     def stop(self, cabin):
-        cabin.setState(STOPPED_CABIN)
+        cabin.toState(STOPPED_CABIN)
 
 STOPPED_CABIN = StoppedCabin()
 GOING_UP_CABIN = GoingUpCabin()
@@ -130,7 +130,7 @@ class Cabin:
         self._cabinDoor = CabinDoor()
         self._floor = 0
 
-    def setState(self, state):
+    def toState(self, state):
         self._state = state
 
     def setFloor(self, floor):
