@@ -128,7 +128,7 @@ class Cabin:
 
     def __init__(self):
         self._state = STOPPED_CABIN
-        self._cabinDoor = CabinDoor()
+        self._door = CabinDoor()
         self._floor = 0
 
     def toState(self, state):
@@ -149,7 +149,8 @@ class Cabin:
         if self.isDoorClosed():
             raise ElevatorEmergency(Cabin.OUT_OF_SYNC_DOOR_SENSOR)
 
-        self._cabinDoor.close()
+        self._door.close()
+
         self._state.movingTo(self, targetFloor)
 
     def stop(self):
@@ -162,28 +163,28 @@ class Cabin:
         return self._state is STOPPED_CABIN
 
     def isDoorOpened(self):
-        return self._cabinDoor.isOpened()
+        return self._door.isOpened()
 
     def isDoorClosed(self):
-        return self._cabinDoor.isClosed()
+        return self._door.isClosed()
 
     def isDoorOpening(self):
-        return self._cabinDoor.isOpening()
+        return self._door.isOpening()
 
     def isDoorClosing(self):
-        return self._cabinDoor.isClosing()
+        return self._door.isClosing()
 
     def closeDoor(self):
-        self._cabinDoor.close()
+        self._door.close()
 
     def doorOpened(self):
-        self._cabinDoor.open()
+        self._door.open()
 
     def openDoor(self):
         self._state.openCabinDoor(self)
 
     def openDoorOnStoppedCabin(self):
-        self._cabinDoor.openOnlyWhenNotOpening()
+        self._door.openOnlyWhenNotOpening()
 
 
 class ElevatorController:
