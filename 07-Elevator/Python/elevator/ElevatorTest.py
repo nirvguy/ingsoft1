@@ -100,9 +100,6 @@ CLOSING_DOOR = ClosingDoor()
 
 
 class StoppedCabin:
-    def __init__(self):
-        pass
-
     def nextFloor(self, cabin):
         pass
 
@@ -123,6 +120,9 @@ class MovingCabin:
         cabin.toState(STOPPED_CABIN)
 
     def openCabinDoor(self, cabin):
+        pass
+
+    def movingTo(self, cabin, targetFloor):
         pass
 
 class GoingUpCabin(MovingCabin):
@@ -200,6 +200,10 @@ class Cabin:
 
 
 class IdleController:
+    def prepareForMoving(self, controller):
+        self.work(controller)
+        controller.closeCabinDoor()
+
     def idle(self, controller):
         pass
 
@@ -207,6 +211,9 @@ class IdleController:
         controller.toState(WORKING_CONTROLLER)
 
 class WorkingController:
+    def prepareForMoving(self, controller):
+        pass
+
     def idle(self, controller):
         controller.toState(IDLE_CONTROLLER)
 
@@ -259,10 +266,8 @@ class ElevatorController:
         self._cabin.closeDoor()
 
     def goUpPushedFromFloor(self, floor):
-        if self.isIdle():
-            self._cabin.closeDoor()
-        self._state.work(self)
         self._floorQueue.append(floor)
+        self._state.prepareForMoving(self)
 
     def cabinDoorClosed(self):
         if len(self._floorQueue) == 0:
