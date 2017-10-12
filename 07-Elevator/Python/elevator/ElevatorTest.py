@@ -112,11 +112,11 @@ class MovingCabin:
 
 class GoingUpCabin(MovingCabin):
     def nextFloor(self, cabin):
-        cabin.setFloor(cabin.floorNumber() + 1)
+        cabin.onFloor(cabin.floorNumber() + 1)
 
 class GoingDownCabin(MovingCabin):
     def nextFloor(self, cabin):
-        cabin.setFloor(cabin.floorNumber() - 1)
+        cabin.onFloor(cabin.floorNumber() - 1)
 
 STOPPED_CABIN = StoppedCabin()
 GOING_UP_CABIN = GoingUpCabin()
@@ -134,7 +134,7 @@ class Cabin:
     def toState(self, state):
         self._state = state
 
-    def setFloor(self, floor):
+    def onFloor(self, floor):
         self._floor = floor
 
     def floorNumber(self):
