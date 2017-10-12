@@ -195,7 +195,7 @@ class ElevatorController:
         return not self.isWorking()
 
     def isWorking(self):
-        return self._cabin.isMoving() or self._cabin.isDoorOpening() or self._cabin.isDoorClosing() or len(self._floorQueue) > 0
+        return self._cabin.isDoorOpening() or len(self._floorQueue) > 0
 
     def isCabinStopped(self):
         return self._cabin.isStopped()
