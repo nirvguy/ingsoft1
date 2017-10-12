@@ -236,12 +236,12 @@ class ElevatorController:
         self._cabin.move(self._floorQueue[0])
 
     def cabinOnFloor(self, floor):
-        if len(self._floorQueue) == 0:
-            raise ElevatorEmergency(Cabin.OUT_OF_SYNC_CABIN_SENSOR)
-
         self._cabin.nextFloor()
 
         if self._cabin.floorNumber() != floor:
+            raise ElevatorEmergency(Cabin.OUT_OF_SYNC_CABIN_SENSOR)
+
+        if len(self._floorQueue) == 0:
             raise ElevatorEmergency(Cabin.OUT_OF_SYNC_CABIN_SENSOR)
 
         if self._cabin.floorNumber() == self._floorQueue[0]:
