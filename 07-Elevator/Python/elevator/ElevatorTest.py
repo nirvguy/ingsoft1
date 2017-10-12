@@ -199,16 +199,37 @@ class Cabin:
         self._door.openOnlyWhenNotOpening()
 
 
+class IdleController:
+    def idle(self, controller):
+        pass
+
+    def work(self, controller):
+        controller.toState(WORKING_CONTROLLER)
+
+class WorkingController:
+    def idle(self, controller):
+        controller.toState(IDLE_CONTROLLER)
+
+    def work(self, controller):
+        pass
+
+IDLE_CONTROLLER = IdleController()
+WORKING_CONTROLLER = WorkingController()
+
 class ElevatorController:
     def __init__(self):
         self._cabin = Cabin()
         self._floorQueue = deque()
+        self._state = IDLE_CONTROLLER
+
+    def toState(self, state):
+        self._state = state
 
     def isIdle(self):
-        return not self.isWorking()
+        return self._state is IDLE_CONTROLLER
 
     def isWorking(self):
-        return self._cabin.isDoorOpening() or len(self._floorQueue) > 0
+        return self._state is WORKING_CONTROLLER
 
     def isCabinStopped(self):
         return self._cabin.isStopped()
@@ -240,6 +261,7 @@ class ElevatorController:
     def goUpPushedFromFloor(self, floor):
         if self.isIdle():
             self._cabin.closeDoor()
+        self._state.work(self)
         self._floorQueue.append(floor)
 
     def cabinDoorClosed(self):
@@ -249,6 +271,7 @@ class ElevatorController:
         self._cabin.movingTo(self._floorQueue[0])
 
     def cabinOnFloor(self, floor):
+        self._state.work(self)
         self._cabin.nextFloor()
 
         if self._cabin.floorNumber() != floor:
@@ -262,6 +285,9 @@ class ElevatorController:
 
     def cabinDoorOpened(self):
         self._cabin.doorOpened()
+
+        if len(self._floorQueue) == 0:
+            self._state.idle(self)
 
     def openCabinDoor(self):
         self._cabin.openDoor()
