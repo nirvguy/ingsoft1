@@ -466,8 +466,7 @@ class ElevatorController:
 
     def cabinDoorIsClosing(self):
         self._cabinDoorState = CabinDoorClosingState(self)
-        for observer in self._observers:
-            observer.notifyClosingDoor()
+        self.notify('notifyClosingDoor')
 
     def controllerIsWorking(self):
         self._state = ElevatorControllerIsWorkingState(self)
@@ -481,9 +480,7 @@ class ElevatorController:
     def cabinDoorClosedWhenWorkingAndCabinStoppedAndClosing(self):
         self._cabinDoorState = CabinDoorClosedState(self)
         self._cabinState = CabinMovingState(self)
-        for observer in self._observers:
-            observer.notifyClosedDoor()
-            observer.notifyMovingCabin()
+        self.notify('notifyClosedDoor', 'notifyMovingCabin')
 
     def cabinOnFloorWhenWorking(self, aFloorNumber):
         if (aFloorNumber<self._cabinFloorNumber):
@@ -496,9 +493,12 @@ class ElevatorController:
             self._floorsToGo.pop(0)
             self.cabinIsStopped()
             self.cabinDoorIsOpening()
-            for observer in self._observers:
-                observer.notifyStoppedCabin()
-                observer.notifyOpeningDoor()
+            self.notify('notifyStoppedCabin', 'notifyOpeningDoor')
+
+    def notify(self, *args):
+        for observer in self._observers:
+            for msg in args:
+                getattr(observer, msg)()
 
     def cabinDoorIsOpening(self):
         self._cabinDoorState = CabinDoorOpeningState(self)
