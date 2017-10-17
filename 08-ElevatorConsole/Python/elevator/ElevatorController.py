@@ -481,6 +481,9 @@ class ElevatorController:
     def cabinDoorClosedWhenWorkingAndCabinStoppedAndClosing(self):
         self._cabinDoorState = CabinDoorClosedState(self)
         self._cabinState = CabinMovingState(self)
+        for c in self._consoles:
+            c.notifyClosedDoor()
+            c.notifyMovingCabin()
 
     def cabinOnFloorWhenWorking(self, aFloorNumber):
         if (aFloorNumber<self._cabinFloorNumber):

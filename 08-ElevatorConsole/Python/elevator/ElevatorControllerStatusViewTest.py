@@ -22,6 +22,12 @@ class ElevatorControllerConsole:
     def notifyClosingDoor(self):
         self._lines.append('Puerta Cerrandose')
 
+    def notifyClosedDoor(self):
+        self._lines.append('Puerta Cerrada')
+
+    def notifyMovingCabin(self):
+        self._lines.append('Cabina Moviendose')
+
 class ElevatorControllerStatusView:
     def __init__(self,elevatorController):
         pass
