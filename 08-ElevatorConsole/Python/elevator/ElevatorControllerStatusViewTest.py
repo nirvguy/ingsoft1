@@ -36,7 +36,30 @@ class ElevatorControllerConsole:
 
 class ElevatorControllerStatusView:
     def __init__(self,elevatorController):
-        pass
+        elevatorController.attach(self)
+        self._cabinStateFieldModel = ''
+        self._cabinDoorStateFieldModel = ''
+
+    def cabinStateFieldModel(self):
+        return self._cabinStateFieldModel
+
+    def cabinDoorStateFieldModel(self):
+        return self._cabinDoorStateFieldModel
+
+    def notifyClosingDoor(self):
+        self._cabinDoorStateFieldModel = 'Closing'
+
+    def notifyClosedDoor(self):
+        self._cabinDoorStateFieldModel = 'Closed'
+
+    def notifyMovingCabin(self):
+        self._cabinStateFieldModel = 'Moving'
+
+    def notifyStoppedCabin(self):
+        self._cabinStateFieldModel = 'Stopped'
+
+    def notifyOpeningDoor(self):
+        self._cabinDoorStateFieldModel = 'Opening'
 
 class ElevatorControllerViewTest(unittest.TestCase):
 
