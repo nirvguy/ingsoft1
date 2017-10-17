@@ -8,7 +8,6 @@
 # California, 94041, USA.
 #
 
-
 class ElevatorEmergency(Exception):
     pass
 
@@ -389,6 +388,10 @@ class ElevatorController:
         self.cabinDoorIsOpened()
         self._cabinFloorNumber = 0
         self._floorsToGo = []
+        self._consoles = []
+
+    def attach(self, console):
+        self._consoles.append(console)
 
     def cabinDoorIsOpened(self):
         self._cabinDoorState = CabinDoorOpenedState(self)
@@ -463,6 +466,8 @@ class ElevatorController:
 
     def cabinDoorIsClosing(self):
         self._cabinDoorState = CabinDoorClosingState(self)
+        for c in self._consoles:
+            c.notifyClosingDoor()
 
     def controllerIsWorking(self):
         self._state = ElevatorControllerIsWorkingState(self)

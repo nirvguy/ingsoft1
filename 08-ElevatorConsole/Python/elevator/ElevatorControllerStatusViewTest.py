@@ -10,12 +10,17 @@
 import unittest
 from ElevatorController import ElevatorController
 
+
 class ElevatorControllerConsole:
     def __init__(self,elevatorController):
-        pass
+        elevatorController.attach(self)
+        self._lines = []
 
     def lines(self):
-        pass
+        return self._lines
+
+    def notifyClosingDoor(self):
+        self._lines.append('Puerta Cerrandose')
 
 class ElevatorControllerStatusView:
     def __init__(self,elevatorController):
