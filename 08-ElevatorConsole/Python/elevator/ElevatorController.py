@@ -388,10 +388,10 @@ class ElevatorController:
         self.cabinDoorIsOpened()
         self._cabinFloorNumber = 0
         self._floorsToGo = []
-        self._consoles = []
+        self._observers = []
 
     def attach(self, console):
-        self._consoles.append(console)
+        self._observers.append(console)
 
     def cabinDoorIsOpened(self):
         self._cabinDoorState = CabinDoorOpenedState(self)
@@ -466,8 +466,8 @@ class ElevatorController:
 
     def cabinDoorIsClosing(self):
         self._cabinDoorState = CabinDoorClosingState(self)
-        for c in self._consoles:
-            c.notifyClosingDoor()
+        for observer in self._observers:
+            observer.notifyClosingDoor()
 
     def controllerIsWorking(self):
         self._state = ElevatorControllerIsWorkingState(self)
@@ -481,9 +481,9 @@ class ElevatorController:
     def cabinDoorClosedWhenWorkingAndCabinStoppedAndClosing(self):
         self._cabinDoorState = CabinDoorClosedState(self)
         self._cabinState = CabinMovingState(self)
-        for c in self._consoles:
-            c.notifyClosedDoor()
-            c.notifyMovingCabin()
+        for observer in self._observers:
+            observer.notifyClosedDoor()
+            observer.notifyMovingCabin()
 
     def cabinOnFloorWhenWorking(self, aFloorNumber):
         if (aFloorNumber<self._cabinFloorNumber):
@@ -496,9 +496,9 @@ class ElevatorController:
             self._floorsToGo.pop(0)
             self.cabinIsStopped()
             self.cabinDoorIsOpening()
-            for c in self._consoles:
-                c.notifyStoppedCabin()
-                c.notifyOpeningDoor()
+            for observer in self._observers:
+                observer.notifyStoppedCabin()
+                observer.notifyOpeningDoor()
 
     def cabinDoorIsOpening(self):
         self._cabinDoorState = CabinDoorOpeningState(self)
