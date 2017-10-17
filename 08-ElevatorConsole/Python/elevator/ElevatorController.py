@@ -496,6 +496,9 @@ class ElevatorController:
             self._floorsToGo.pop(0)
             self.cabinIsStopped()
             self.cabinDoorIsOpening()
+            for c in self._consoles:
+                c.notifyStoppedCabin()
+                c.notifyOpeningDoor()
 
     def cabinDoorIsOpening(self):
         self._cabinDoorState = CabinDoorOpeningState(self)

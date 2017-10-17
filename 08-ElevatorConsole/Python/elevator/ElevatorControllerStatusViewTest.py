@@ -28,6 +28,12 @@ class ElevatorControllerConsole:
     def notifyMovingCabin(self):
         self._lines.append('Cabina Moviendose')
 
+    def notifyStoppedCabin(self):
+        self._lines.append('Cabina Detenida')
+
+    def notifyOpeningDoor(self):
+        self._lines.append('Puerta Abriendose')
+
 class ElevatorControllerStatusView:
     def __init__(self,elevatorController):
         pass
