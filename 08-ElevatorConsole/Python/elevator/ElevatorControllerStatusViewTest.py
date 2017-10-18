@@ -10,10 +10,32 @@
 import unittest
 from ElevatorController import ElevatorController
 
-
-class ElevatorControllerConsole:
-    def __init__(self,elevatorController):
+class ElevatorControllerObserver(object):
+    def __init__(self, elevatorController):
         elevatorController.attach(self)
+
+    def notifyClosingDoor(self):
+        self.shouldBeImplementedBySubclass()
+
+    def notifyClosedDoor(self):
+        self.shouldBeImplementedBySubclass()
+
+    def notifyMovingCabin(self):
+        self.shouldBeImplementedBySubclass()
+
+    def notifyStoppedCabin(self):
+        self.shouldBeImplementedBySubclass()
+
+    def notifyOpeningDoor(self):
+        self.shouldBeImplementedBySubclass()
+
+    def shouldBeImplementedBySubclass(self):
+        raise RuntimeError("Should be implemented by subclass")
+
+
+class ElevatorControllerConsole(ElevatorControllerObserver):
+    def __init__(self, elevatorController):
+        super(ElevatorControllerConsole, self).__init__(elevatorController)
         self._lines = []
 
     def lines(self):
@@ -34,9 +56,9 @@ class ElevatorControllerConsole:
     def notifyOpeningDoor(self):
         self._lines.append('Puerta Abriendose')
 
-class ElevatorControllerStatusView:
-    def __init__(self,elevatorController):
-        elevatorController.attach(self)
+class ElevatorControllerStatusView(ElevatorControllerObserver):
+    def __init__(self, elevatorController):
+        super(ElevatorControllerStatusView, self).__init__(elevatorController)
         self._cabinStateFieldModel = ''
         self._cabinDoorStateFieldModel = ''
 
