@@ -497,8 +497,7 @@ class ElevatorController:
 
     def notify(self, *args):
         for observer in self._observers:
-            for msg in args:
-                getattr(observer, msg)()
+            observer.notify(*args)
 
     def cabinDoorIsOpening(self):
         self._cabinDoorState = CabinDoorOpeningState(self)

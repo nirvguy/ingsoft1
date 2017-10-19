@@ -14,6 +14,10 @@ class ElevatorControllerObserver(object):
     def __init__(self, elevatorController):
         elevatorController.attach(self)
 
+    def notify(self, *args):
+        for msg in args:
+            getattr(self, msg)()
+
     def notifyClosingDoor(self):
         self.shouldBeImplementedBySubclass()
 
