@@ -8,7 +8,7 @@ class CarritoTest(unittest.TestCase):
         libro = 'libro'
 
         self.assertTrue(carrito.vacio())
-        self.assertFalse(carrito.contiene(libro))
+        self.assertFalse(libro in carrito)
 
     def test02_carrito_con_un_elemento_no_esta_vacio(self):
         libro = 'libro'
@@ -18,7 +18,7 @@ class CarritoTest(unittest.TestCase):
         carrito.agregar(libro)
 
         self.assertFalse(carrito.vacio())
-        self.assertTrue(carrito.contiene(libro))
+        self.assertTrue(libro in carrito)
 
     def test03_no_se_puede_agregar_un_producto_que_no_esta_en_el_catalogo(self):
         libro = 'libro'
@@ -32,4 +32,4 @@ class CarritoTest(unittest.TestCase):
         except Exception as e:
             self.assertEqual(str(e), Carrito.PRODUCTO_NO_ESTA_EN_CATALOGO)
             self.assertTrue(carrito.vacio())
-            self.assertFalse(carrito.contiene(otro_libro))
+            self.assertTrue(otro_libro not in carrito)

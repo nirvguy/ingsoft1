@@ -8,7 +8,7 @@ class Carrito(object):
     def vacio(self):
         return len(self._productos) == 0
 
-    def contiene(self, producto):
+    def __contains__(self, producto):
         return producto in self._productos
 
     def agregar(self, producto):
