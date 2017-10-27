@@ -1,8 +1,10 @@
+from collections import Counter
+
 class Carrito(object):
     PRODUCTO_NO_ESTA_EN_CATALOGO = 'El producto no esta en el catalogo!'
 
     def __init__(self, catalogo):
-        self._productos = set()
+        self._productos = Counter()
         self._catalogo = catalogo
 
     def vacio(self):
@@ -14,6 +16,9 @@ class Carrito(object):
     def agregar(self, producto):
         if producto not in self._catalogo:
             raise Exception(self.PRODUCTO_NO_ESTA_EN_CATALOGO)
-        self._productos.add(producto)
+        self._productos[producto] += 1
 
-
+    def unidades(self, producto):
+        if producto not in self._catalogo:
+            raise Exception(self.PRODUCTO_NO_ESTA_EN_CATALOGO)
+        return self._productos[producto]
