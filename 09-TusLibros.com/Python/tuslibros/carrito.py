@@ -22,3 +22,6 @@ class Carrito(object):
         if producto not in self._catalogo:
             raise Exception(self.PRODUCTO_NO_ESTA_EN_CATALOGO)
         return self._productos[producto]
+
+    def productos(self):
+        return list(self._productos.keys())
