@@ -1,6 +1,7 @@
 import unittest
 from carrito import Carrito
 from cajero import Cajero
+from collections import namedtuple
 
 LIBRO = 'Libro'
 OTRO_LIBRO = 'Otro Libro'
@@ -10,6 +11,8 @@ CATALOGO_VACIO = {}
 CATALOGO_DE_UN_ELEMENTO = { LIBRO: 17 }
 CATALOGO_DE_MULTIPLES_ELEMENTOS = { LIBRO: 17, OTRO_LIBRO: 33, UN_TERCER_LIBRO: 42 }
 
+TARJETA = 'tarjeta'
+
 class CajeroTest(unittest.TestCase):
     def test01(self):
         carrito = Carrito(CATALOGO_VACIO)
@@ -17,9 +20,7 @@ class CajeroTest(unittest.TestCase):
 
         try:
             precio = cajero.checkout(carrito=carrito,
-                                     numero_tarjeta=0,
-                                     expiracion_tarjeta=(1, 2),
-                                     duenio_tarjeta='alguien')
+                                     tarjeta=TARJETA)
             self.fail()
         except Exception as e:
             self.assertEqual(str(e), Cajero.CHECKOUT_CARRITO_VACIO)
@@ -30,9 +31,7 @@ class CajeroTest(unittest.TestCase):
 
         carrito.agregar(LIBRO)
         precio = cajero.checkout(carrito=carrito,
-                                 numero_tarjeta=0,
-                                 expiracion_tarjeta=(1, 2),
-                                 duenio_tarjeta='alguien')
+                                 tarjeta=TARJETA)
 
         self.assertEqual(precio, 17)
 
@@ -43,9 +42,7 @@ class CajeroTest(unittest.TestCase):
         carrito.agregar(LIBRO)
         carrito.agregar(OTRO_LIBRO)
         precio = cajero.checkout(carrito=carrito,
-                                 numero_tarjeta=0,
-                                 expiracion_tarjeta=(1, 2),
-                                 duenio_tarjeta='alguien')
+                                 tarjeta=TARJETA)
 
         self.assertEqual(precio, 17 + 33)
 
@@ -56,8 +53,6 @@ class CajeroTest(unittest.TestCase):
         carrito.agregar(LIBRO)
         carrito.agregar(LIBRO)
         precio = cajero.checkout(carrito=carrito,
-                                 numero_tarjeta=0,
-                                 expiracion_tarjeta=(1, 2),
-                                 duenio_tarjeta='alguien')
+                                 tarjeta=TARJETA)
 
         self.assertEqual(precio, 2*17)

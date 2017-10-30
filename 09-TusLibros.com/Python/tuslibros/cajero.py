@@ -11,7 +11,7 @@ class Cajero(object):
 
         return self._catalogo[producto]
 
-    def checkout(self, carrito, numero_tarjeta, expiracion_tarjeta, duenio_tarjeta):
+    def checkout(self, carrito, tarjeta):
         if carrito.vacio():
             raise Exception(self.CHECKOUT_CARRITO_VACIO)
 
