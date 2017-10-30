@@ -60,3 +60,15 @@ class CarritoTest(unittest.TestCase):
         except Exception as e:
             self.assertEqual(str(e), Carrito.PRODUCTO_NO_ESTA_EN_CATALOGO)
             self.assertTrue(carrito.vacio())
+
+    def test07_se_pueden_listar_los_productos_de_un_carrito(self):
+        carrito = Carrito(CATALOGO_DE_MULTIPLES_ELEMENTOS)
+
+        carrito.agregar(LIBRO)
+        carrito.agregar(LIBRO)
+        carrito.agregar(OTRO_LIBRO)
+        productos = carrito.productos()
+
+        self.assertEqual(len(productos), 2)
+        self.assertTrue(LIBRO in productos)
+        self.assertTrue(OTRO_LIBRO in productos)
