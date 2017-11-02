@@ -7,7 +7,7 @@ class Tarjeta:
         if len(str(numero)) != 16:
             raise Exception(Tarjeta.NRO_INVALIDO)
 
-        if len(duenio) == 0:
+        if len(duenio.strip()) == 0:
             raise Exception(Tarjeta.DUENIO_VACIO)
 
         if mes_expiracion == 0 or mes_expiracion > 12:
