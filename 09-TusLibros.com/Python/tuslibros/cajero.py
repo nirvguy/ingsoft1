@@ -2,8 +2,10 @@ class Cajero(object):
     CHECKOUT_CARRITO_VACIO = "No se puede hacer checkout de un carrito vacio!"
     PRODUCTO_NO_ESTA_EN_CATALOGO = 'El producto no esta en el catalogo!'
 
-    def __init__(self, catalogo):
+    def __init__(self, catalogo, carrito, tarjeta):
         self._catalogo = catalogo
+        self._carrito = carrito
+        self._tarjeta = tarjeta
 
     def precio(self, producto):
         if producto not in self._catalogo:
@@ -11,8 +13,9 @@ class Cajero(object):
 
         return self._catalogo[producto]
 
-    def checkout(self, carrito, tarjeta):
-        if carrito.vacio():
+    def checkout(self):
+        if self._carrito.vacio():
             raise Exception(self.CHECKOUT_CARRITO_VACIO)
 
-        return sum(self.precio(producto) * carrito.unidades(producto) for producto in carrito.productos())
+        return sum(self.precio(producto) * self._carrito.unidades(producto)
+                   for producto in self._carrito.productos())

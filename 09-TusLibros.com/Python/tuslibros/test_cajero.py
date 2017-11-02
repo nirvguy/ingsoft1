@@ -16,43 +16,39 @@ TARJETA = 'tarjeta'
 class CajeroTest(unittest.TestCase):
     def test01(self):
         carrito = Carrito(CATALOGO_VACIO)
-        cajero = Cajero(CATALOGO_VACIO)
+        cajero = Cajero(catalogo=CATALOGO_VACIO, carrito=carrito, tarjeta=TARJETA)
 
         try:
-            precio = cajero.checkout(carrito=carrito,
-                                     tarjeta=TARJETA)
+            precio = cajero.checkout()
             self.fail()
         except Exception as e:
             self.assertEqual(str(e), Cajero.CHECKOUT_CARRITO_VACIO)
 
     def test02(self):
         carrito = Carrito(CATALOGO_DE_UN_ELEMENTO)
-        cajero = Cajero(CATALOGO_DE_UN_ELEMENTO)
+        cajero = Cajero(catalogo=CATALOGO_DE_UN_ELEMENTO, carrito=carrito, tarjeta=TARJETA)
 
         carrito.agregar(LIBRO)
-        precio = cajero.checkout(carrito=carrito,
-                                 tarjeta=TARJETA)
+        precio = cajero.checkout()
 
         self.assertEqual(precio, 17)
 
     def test03(self):
         carrito = Carrito(CATALOGO_DE_MULTIPLES_ELEMENTOS)
-        cajero = Cajero(CATALOGO_DE_MULTIPLES_ELEMENTOS)
+        cajero = Cajero(catalogo=CATALOGO_DE_MULTIPLES_ELEMENTOS, carrito=carrito, tarjeta=TARJETA)
 
         carrito.agregar(LIBRO)
         carrito.agregar(OTRO_LIBRO)
-        precio = cajero.checkout(carrito=carrito,
-                                 tarjeta=TARJETA)
+        precio = cajero.checkout()
 
         self.assertEqual(precio, 17 + 33)
 
     def test04(self):
         carrito = Carrito(CATALOGO_DE_UN_ELEMENTO)
-        cajero = Cajero(CATALOGO_DE_UN_ELEMENTO)
+        cajero = Cajero(catalogo=CATALOGO_DE_UN_ELEMENTO, carrito=carrito, tarjeta=TARJETA)
 
         carrito.agregar(LIBRO)
         carrito.agregar(LIBRO)
-        precio = cajero.checkout(carrito=carrito,
-                                 tarjeta=TARJETA)
+        precio = cajero.checkout()
 
         self.assertEqual(precio, 2*17)
