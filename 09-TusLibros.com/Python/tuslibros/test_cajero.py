@@ -52,3 +52,16 @@ class CajeroTest(unittest.TestCase):
         precio = cajero.checkout()
 
         self.assertEqual(precio, 2*17)
+
+    def test05(self):
+        carrito = Carrito(catalogo=CATALOGO_DE_MULTIPLES_ELEMENTOS)
+        cajero = Cajero(catalogo=CATALOGO_DE_UN_ELEMENTO, carrito=carrito, tarjeta=TARJETA)
+
+        carrito.agregar(LIBRO)
+        carrito.agregar(OTRO_LIBRO)
+
+        try:
+            precio = carrito.checkout()
+            self.fail()
+        except Exception as e:
+            self.assertEqual(str(e), cajero.PRODUCTO_NO_ESTA_EN_CATALOGO)
