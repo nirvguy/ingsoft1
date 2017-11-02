@@ -73,3 +73,10 @@ class TestTarjeta(unittest.TestCase):
             self.fail()
         except Exception as e:
             self.assertEqual(str(e), Tarjeta.MES_INVALIDO)
+
+    def test09(self):
+        try:
+            tarjeta = Tarjeta(numero='1' * 16, mes_expiracion=10, anio_expiracion=2017, duenio=' ')
+            self.fail()
+        except Exception as e:
+            self.assertEqual(str(e), Tarjeta.DUENIO_VACIO)
