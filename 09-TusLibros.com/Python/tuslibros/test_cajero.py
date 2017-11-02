@@ -61,7 +61,7 @@ class CajeroTest(unittest.TestCase):
         carrito.agregar(OTRO_LIBRO)
 
         try:
-            precio = carrito.checkout()
+            precio = cajero.checkout()
             self.fail()
         except Exception as e:
             self.assertEqual(str(e), cajero.PRODUCTO_NO_ESTA_EN_CATALOGO)
