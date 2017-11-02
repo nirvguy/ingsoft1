@@ -18,5 +18,8 @@ class Cajero(object):
         if self._carrito.vacio():
             raise Exception(self.CHECKOUT_CARRITO_VACIO)
 
+        if self._tarjeta.expiro(self._fecha):
+            raise Exception(self.TARJETA_EXPIRADA)
+
         return sum(self.precio(producto) * self._carrito.unidades(producto)
                    for producto in self._carrito.productos())
