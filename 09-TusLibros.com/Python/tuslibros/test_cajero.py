@@ -12,12 +12,14 @@ CATALOGO_VACIO = {}
 CATALOGO_DE_UN_ELEMENTO = { LIBRO: 17 }
 CATALOGO_DE_MULTIPLES_ELEMENTOS = { LIBRO: 17, OTRO_LIBRO: 33, UN_TERCER_LIBRO: 42 }
 
-TARJETA = 'tarjeta'
+TARJETA = Tarjeta(numero='0123456789012345', mes_expiracion=1, anio_expiracion=2020, duenio='Duenio')
+
+FECHA = date(2017, 1, 1)
 
 class CajeroTest(unittest.TestCase):
     def test01(self):
         carrito = Carrito(CATALOGO_VACIO)
-        cajero = Cajero(catalogo=CATALOGO_VACIO, carrito=carrito, tarjeta=TARJETA)
+        cajero = Cajero(catalogo=CATALOGO_VACIO, carrito=carrito, tarjeta=TARJETA, fecha=FECHA)
 
         try:
             precio = cajero.checkout()
@@ -27,7 +29,7 @@ class CajeroTest(unittest.TestCase):
 
     def test02(self):
         carrito = Carrito(CATALOGO_DE_UN_ELEMENTO)
-        cajero = Cajero(catalogo=CATALOGO_DE_UN_ELEMENTO, carrito=carrito, tarjeta=TARJETA)
+        cajero = Cajero(catalogo=CATALOGO_DE_UN_ELEMENTO, carrito=carrito, tarjeta=TARJETA, fecha=FECHA)
 
         carrito.agregar(LIBRO)
         precio = cajero.checkout()
@@ -36,7 +38,7 @@ class CajeroTest(unittest.TestCase):
 
     def test03(self):
         carrito = Carrito(CATALOGO_DE_MULTIPLES_ELEMENTOS)
-        cajero = Cajero(catalogo=CATALOGO_DE_MULTIPLES_ELEMENTOS, carrito=carrito, tarjeta=TARJETA)
+        cajero = Cajero(catalogo=CATALOGO_DE_MULTIPLES_ELEMENTOS, carrito=carrito, tarjeta=TARJETA, fecha=FECHA)
 
         carrito.agregar(LIBRO)
         carrito.agregar(OTRO_LIBRO)
@@ -46,7 +48,7 @@ class CajeroTest(unittest.TestCase):
 
     def test04(self):
         carrito = Carrito(CATALOGO_DE_UN_ELEMENTO)
-        cajero = Cajero(catalogo=CATALOGO_DE_UN_ELEMENTO, carrito=carrito, tarjeta=TARJETA)
+        cajero = Cajero(catalogo=CATALOGO_DE_UN_ELEMENTO, carrito=carrito, tarjeta=TARJETA, fecha=FECHA)
 
         carrito.agregar(LIBRO)
         carrito.agregar(LIBRO)
@@ -56,7 +58,7 @@ class CajeroTest(unittest.TestCase):
 
     def test05(self):
         carrito = Carrito(catalogo=CATALOGO_DE_MULTIPLES_ELEMENTOS)
-        cajero = Cajero(catalogo=CATALOGO_DE_UN_ELEMENTO, carrito=carrito, tarjeta=TARJETA)
+        cajero = Cajero(catalogo=CATALOGO_DE_UN_ELEMENTO, carrito=carrito, tarjeta=TARJETA, fecha=FECHA)
 
         carrito.agregar(LIBRO)
         carrito.agregar(OTRO_LIBRO)
@@ -68,9 +70,8 @@ class CajeroTest(unittest.TestCase):
             self.assertEqual(str(e), cajero.PRODUCTO_NO_ESTA_EN_CATALOGO)
 
     def test06(self):
-        tarjeta_expirada = Tarjeta(numero='1' * 16, mes_expiracion=1, anio_expiracion=1990, duenio='Duenio')
         carrito = Carrito(catalogo=CATALOGO_DE_UN_ELEMENTO)
-        cajero = Cajero(catalogo=CATALOGO_DE_UN_ELEMENTO, carrito=carrito, tarjeta=tarjeta_expirada, fecha=date(2017, 1, 1))
+        cajero = Cajero(catalogo=CATALOGO_DE_UN_ELEMENTO, carrito=carrito, tarjeta=TARJETA, fecha=date(2021, 1, 1))
 
         carrito.agregar(LIBRO)
 
