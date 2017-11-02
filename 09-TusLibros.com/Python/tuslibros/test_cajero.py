@@ -1,7 +1,8 @@
 import unittest
+from datetime import date
 from carrito import Carrito
 from cajero import Cajero
-from collections import namedtuple
+from tarjeta import Tarjeta
 
 LIBRO = 'Libro'
 OTRO_LIBRO = 'Otro Libro'
@@ -65,3 +66,16 @@ class CajeroTest(unittest.TestCase):
             self.fail()
         except Exception as e:
             self.assertEqual(str(e), cajero.PRODUCTO_NO_ESTA_EN_CATALOGO)
+
+    def test06(self):
+        tarjeta_expirada = Tarjeta(numero='1' * 16, mes_expiracion=1, anio_expiracion=1990, duenio='Duenio')
+        carrito = Carrito(catalogo=CATALOGO_DE_UN_ELEMENTO)
+        cajero = Cajero(catalogo=CATALOGO_DE_UN_ELEMENTO, carrito=carrito, tarjeta=tarjeta_expirada, fecha=date(2017, 1, 1))
+
+        carrito.agregar(LIBRO)
+
+        try:
+            precio = cajero.checkout()
+            self.fail()
+        except Exception as e:
+            self.assertEqual(str(e), Cajero.TARJETA_EXPIRADA)

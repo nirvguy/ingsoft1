@@ -1,11 +1,13 @@
 class Cajero(object):
     CHECKOUT_CARRITO_VACIO = "No se puede hacer checkout de un carrito vacio!"
     PRODUCTO_NO_ESTA_EN_CATALOGO = 'El producto no esta en el catalogo!'
+    TARJETA_EXPIRADA = 'La tarjeta esta expirada!'
 
-    def __init__(self, catalogo, carrito, tarjeta):
+    def __init__(self, catalogo, carrito, tarjeta, fecha):
         self._catalogo = catalogo
         self._carrito = carrito
         self._tarjeta = tarjeta
+        self._fecha = fecha
 
     def precio(self, producto):
         if producto not in self._catalogo:
