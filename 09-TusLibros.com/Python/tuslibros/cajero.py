@@ -3,11 +3,12 @@ class Cajero(object):
     PRODUCTO_NO_ESTA_EN_CATALOGO = 'El producto no esta en el catalogo!'
     TARJETA_EXPIRADA = 'La tarjeta esta expirada!'
 
-    def __init__(self, catalogo, carrito, tarjeta, fecha):
+    def __init__(self, catalogo, carrito, tarjeta, fecha, mp):
         self._catalogo = catalogo
         self._carrito = carrito
         self._tarjeta = tarjeta
         self._fecha = fecha
+        self._mp = mp
 
     def checkout(self):
         if self._carrito.vacio():
