@@ -18,5 +18,8 @@ class Cajero(object):
         if any(p not in self._catalogo for p in self._carrito.productos()):
             raise Exception(self.PRODUCTO_NO_ESTA_EN_CATALOGO)
 
-        return sum(self._catalogo[producto] * self._carrito.unidades(producto)
-                   for producto in self._carrito.productos())
+        monto = sum(self._catalogo[producto] * self._carrito.unidades(producto)
+                    for producto in self._carrito.productos())
+        self._mp.debit(self._tarjeta, monto)
+
+        return monto
