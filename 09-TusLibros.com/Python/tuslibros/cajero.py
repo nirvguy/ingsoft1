@@ -9,17 +9,13 @@ class Cajero(object):
         self._tarjeta = tarjeta
         self._fecha = fecha
 
-    def precio(self, producto):
-        if producto not in self._catalogo:
-            raise Exception(Cajero.PRODUCTO_NO_ESTA_EN_CATALOGO)
-        return self._catalogo[producto]
-
     def checkout(self):
         if self._carrito.vacio():
             raise Exception(self.CHECKOUT_CARRITO_VACIO)
-
         if self._tarjeta.expiro(self._fecha):
             raise Exception(self.TARJETA_EXPIRADA)
+        if any(p not in self._catalogo for p in self._carrito.productos()):
+            raise Exception(self.PRODUCTO_NO_ESTA_EN_CATALOGO)
 
-        return sum(self.precio(producto) * self._carrito.unidades(producto)
+        return sum(self._catalogo[producto] * self._carrito.unidades(producto)
                    for producto in self._carrito.productos())
