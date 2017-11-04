@@ -10,7 +10,7 @@ class Tarjeta:
         if len(duenio.strip()) == 0:
             raise Exception(Tarjeta.DUENIO_VACIO)
 
-        if mes_expiracion == 0 or mes_expiracion > 12:
+        if mes_expiracion < 1 or mes_expiracion > 12:
             raise Exception(Tarjeta.MES_INVALIDO)
 
         self._numero = numero
