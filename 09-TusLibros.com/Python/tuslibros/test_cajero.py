@@ -36,6 +36,13 @@ class MPRegistrador(SimuladorMerchantProcessor):
     def tarjeta(self):
         return self._tarjeta
 
+class MPXXX(SimuladorMerchantProcessor):
+    def __init__(self, mensaje_excepcion):
+        self._mensaje_excepcion = mensaje_excepcion
+
+    def debit(self, tarjeta, monto):
+        raise Exception(self._mensaje_excepcion)
+
 class CajeroTest(unittest.TestCase):
     def setUp(self):
         self.MP_REGISTRADOR = MPRegistrador()
@@ -134,3 +141,32 @@ class CajeroTest(unittest.TestCase):
         self.assertEqual(self.MP_REGISTRADOR.tarjeta(), TARJETA)
         self.assertEqual(self.LIBRO_DE_VENTAS, [Venta({LIBRO: 1}, 17)])
 
+    def test08(self):
+        msg = 'Tarjeta robada!'
+        mp = MPXXX(msg)
+        carrito = Carrito(catalogo=CATALOGO_DE_UN_ELEMENTO)
+        cajero = Cajero(catalogo=CATALOGO_DE_UN_ELEMENTO, carrito=carrito, tarjeta=TARJETA, fecha=FECHA, mp=mp, libro=self.LIBRO_DE_VENTAS)
+
+        carrito.agregar(LIBRO)
+
+        try:
+            precio = cajero.checkout()
+            self.fail()
+        except Exception as e:
+            self.assertEqual(str(e), msg)
+            self.assertEqual(self.LIBRO_DE_VENTAS, [])
+
+    def test09(self):
+        msg = 'Tarjeta sin fondo!'
+        mp = MPXXX(msg)
+        carrito = Carrito(catalogo=CATALOGO_DE_UN_ELEMENTO)
+        cajero = Cajero(catalogo=CATALOGO_DE_UN_ELEMENTO, carrito=carrito, tarjeta=TARJETA, fecha=FECHA, mp=mp, libro=self.LIBRO_DE_VENTAS)
+
+        carrito.agregar(LIBRO)
+
+        try:
+            precio = cajero.checkout()
+            self.fail()
+        except Exception as e:
+            self.assertEqual(str(e), msg)
+            self.assertEqual(self.LIBRO_DE_VENTAS, [])
