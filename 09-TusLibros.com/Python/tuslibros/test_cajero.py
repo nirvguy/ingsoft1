@@ -129,17 +129,6 @@ class CajeroTest(unittest.TestCase):
             self.assertEqual(self.MP_REGISTRADOR.tarjeta(), None)
             self.assertEqual(self.LIBRO_DE_VENTAS, [])
 
-    def test07(self):
-        carrito = Carrito(catalogo=CATALOGO_DE_UN_ELEMENTO)
-        cajero = Cajero(catalogo=CATALOGO_DE_UN_ELEMENTO, carrito=carrito, tarjeta=TARJETA, fecha=FECHA, mp=self.MP_REGISTRADOR, libro=self.LIBRO_DE_VENTAS)
-
-        carrito.agregar(LIBRO)
-        transaction_id = cajero.checkout()
-
-        self.assertEqual(self.MP_REGISTRADOR.monto(), 17)
-        self.assertEqual(self.MP_REGISTRADOR.tarjeta(), TARJETA)
-        self.assertEqual(self.LIBRO_DE_VENTAS, [Venta({LIBRO: 1}, 17)])
-
     def test08(self):
         msg = 'Tarjeta robada!'
         mp = MPXXX(msg)
