@@ -342,3 +342,33 @@ class TestInterfaz(unittest.TestCase):
             productos_carrito = interfaz.list_cart(id_carrito_2)
             self.assertEqual(len(productos_carrito), 1)
             self.assertTrue((OTRO_LIBRO, 2) in productos_carrito)
+
+    def test26_no_se_pueden_agregar_0_unidades_de_un_producto(self):
+        interfaz = InterfazRest(LISTA_DE_USUARIOS_CON_UN_USUARIO, CATALOGO_DE_UN_ELEMENTO, RELOJ_ESTACIONARIO, MP)
+
+        id_carrito = interfaz.create_cart(CLIENTE, CONTRASENIA)
+
+        interfaz.add_to_cart(id_carrito, LIBRO, 3)
+        try:
+            interfaz.add_to_cart(id_carrito, LIBRO, 0)
+            self.fail()
+        except Exception as e:
+            self.assertEqual(str(e), InterfazRest.UNIDADES_DEBEN_SER_POSITIVAS)
+            productos_carrito = interfaz.list_cart(id_carrito)
+            self.assertEqual(len(productos_carrito), 1)
+            self.assertTrue((LIBRO, 3) in productos_carrito)
+
+    def test27_no_se_pueden_agregar_una_cantidad_negativa_de_unidades_de_un_producto(self):
+        interfaz = InterfazRest(LISTA_DE_USUARIOS_CON_UN_USUARIO, CATALOGO_DE_UN_ELEMENTO, RELOJ_ESTACIONARIO, MP)
+
+        id_carrito = interfaz.create_cart(CLIENTE, CONTRASENIA)
+
+        interfaz.add_to_cart(id_carrito, LIBRO, 3)
+        try:
+            interfaz.add_to_cart(id_carrito, LIBRO, -1)
+            self.fail()
+        except Exception as e:
+            self.assertEqual(str(e), InterfazRest.UNIDADES_DEBEN_SER_POSITIVAS)
+            productos_carrito = interfaz.list_cart(id_carrito)
+            self.assertEqual(len(productos_carrito), 1)
+            self.assertTrue((LIBRO, 3) in productos_carrito)

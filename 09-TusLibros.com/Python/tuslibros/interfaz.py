@@ -30,6 +30,7 @@ class InterfazRest(object):
     CHECKOUT_CARRITO_VACIO = 'No se puede hacer checkout de un carrito vacio!'
     FECHA_INVALIDA = 'Fecha de vencimiento invalida!'
     TIMEOUT_CARRITO = 'El carrito expiro!'
+    UNIDADES_DEBEN_SER_POSITIVAS = 'Las unidades a agregar a un carrito deben ser positivas!'
 
     def __init__(self, usuarios, catalogo, reloj, mp):
         self._usuarios = usuarios
