@@ -25,15 +25,14 @@ class SesionCarrito(object):
         return (acceso - self._ultimo_acceso).total_seconds() / 60 > 30
 
 class InterfazRest(object):
-    COMBINACION_USUARIO_Y_CLAVE_INVALIDA = 'El usuario o la clave son invalidos!'
     CARRITO_INVALIDO = 'El carrito es invalido!'
     CHECKOUT_CARRITO_VACIO = 'No se puede hacer checkout de un carrito vacio!'
     FECHA_INVALIDA = 'Fecha de vencimiento invalida!'
     TIMEOUT_CARRITO = 'El carrito expiro!'
     UNIDADES_DEBEN_SER_POSITIVAS = 'Las unidades a agregar a un carrito deben ser positivas!'
 
-    def __init__(self, usuarios, catalogo, reloj, mp):
-        self._usuarios = usuarios
+    def __init__(self, autenticador, catalogo, reloj, mp):
+        self._autenticador = autenticador
         self._catalogo = catalogo
         self._libros_de_ventas = defaultdict(list)
         self._sesiones = dict()
@@ -42,8 +41,7 @@ class InterfazRest(object):
         self._mp = mp
 
     def create_cart(self, usuario, contrasenia):
-        if usuario not in self._usuarios or self._usuarios[usuario] != contrasenia:
-            raise Exception(self.COMBINACION_USUARIO_Y_CLAVE_INVALIDA)
+        self._autenticador.login(usuario, contrasenia)
 
         carrito = Carrito(self._catalogo)
 
@@ -75,8 +73,7 @@ class InterfazRest(object):
         return [ (p, carrito.unidades(p)) for p in carrito.productos() ]
 
     def list_purchases(self, usuario, contrasenia):
-        if usuario not in self._usuarios or self._usuarios[usuario] != contrasenia:
-            raise Exception(self.COMBINACION_USUARIO_Y_CLAVE_INVALIDA)
+        self._autenticador.login(usuario, contrasenia)
 
         cantidades = Counter()
         for v in self._libros_de_ventas[usuario]:
