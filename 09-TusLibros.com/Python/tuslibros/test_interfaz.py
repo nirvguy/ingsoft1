@@ -330,7 +330,7 @@ class TestInterfaz(unittest.TestCase):
             self.assertTrue((OTRO_LIBRO, 2) in productos_carrito)
 
     def test26_no_se_pueden_agregar_0_unidades_de_un_producto(self):
-        interfaz = InterfazRest(LISTA_DE_USUARIOS_CON_UN_USUARIO, CATALOGO_DE_UN_ELEMENTO, RELOJ_ESTACIONARIO, MP)
+        interfaz = InterfazRest(self._autenticador, CATALOGO_DE_UN_ELEMENTO, RELOJ_ESTACIONARIO, MP)
 
         id_carrito = interfaz.create_cart(CLIENTE, CONTRASENIA)
 
@@ -345,7 +345,7 @@ class TestInterfaz(unittest.TestCase):
             self.assertTrue((LIBRO, 3) in productos_carrito)
 
     def test27_no_se_pueden_agregar_una_cantidad_negativa_de_unidades_de_un_producto(self):
-        interfaz = InterfazRest(LISTA_DE_USUARIOS_CON_UN_USUARIO, CATALOGO_DE_UN_ELEMENTO, RELOJ_ESTACIONARIO, MP)
+        interfaz = InterfazRest(self._autenticador, CATALOGO_DE_UN_ELEMENTO, RELOJ_ESTACIONARIO, MP)
 
         id_carrito = interfaz.create_cart(CLIENTE, CONTRASENIA)
 
