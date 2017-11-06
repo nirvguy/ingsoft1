@@ -26,7 +26,7 @@ MP = SimuladorMerchantProcessor()
 FECHA = date(2017, 1, 1)
 
 class TestInterfaz(unittest.TestCase):
-    def test01(self):
+    def test01_no_se_puede_crear_un_carrito_con_un_usuario_no_registrado(self):
         interfaz = InterfazRest(LISTA_DE_USUARIOS_VACIA, CATALOGO_DE_UN_ELEMENTO, FECHA, MP)
 
         try:
@@ -35,14 +35,14 @@ class TestInterfaz(unittest.TestCase):
         except Exception as e:
             self.assertEqual(str(e), InterfazRest.COMBINACION_USUARIO_Y_CLAVE_INVALIDA)
 
-    def test02(self):
+    def test02_al_crear_un_carrito_vacio_la_lista_de_productos_del_carrito_debe_ser_vacia(self):
         interfaz = InterfazRest(LISTA_DE_USUARIOS_CON_UN_USUARIO, CATALOGO_DE_UN_ELEMENTO, FECHA, MP)
 
         id_carrito = interfaz.create_cart(CLIENTE, CONTRASENIA)
         self.assertEqual(interfaz.list_cart(id_carrito), [])
         self.assertEqual(interfaz.list_purchases(CLIENTE, CONTRASENIA), ([], 0))
 
-    def test03(self):
+    def test03_no_se_puede_crear_un_usuario_autenticandose_con_contrasenia_incorrecta(self):
         interfaz = InterfazRest(LISTA_DE_USUARIOS_CON_UN_USUARIO, CATALOGO_DE_UN_ELEMENTO, FECHA, MP)
 
         try:
@@ -51,7 +51,7 @@ class TestInterfaz(unittest.TestCase):
         except Exception as e:
             self.assertEqual(str(e), InterfazRest.COMBINACION_USUARIO_Y_CLAVE_INVALIDA)
 
-    def test04(self):
+    def test04_agregar_un_producto_al_carrito_no_realiza_compras(self):
         interfaz = InterfazRest(LISTA_DE_USUARIOS_CON_UN_USUARIO, CATALOGO_DE_UN_ELEMENTO, FECHA, MP)
 
         id_carrito = interfaz.create_cart(CLIENTE, CONTRASENIA)
@@ -59,7 +59,7 @@ class TestInterfaz(unittest.TestCase):
         self.assertEqual(interfaz.list_cart(id_carrito), [(LIBRO, 1)])
         self.assertEqual(interfaz.list_purchases(CLIENTE, CONTRASENIA), ([], 0))
 
-    def test05(self):
+    def test05_el_listado_de_un_carrito_con_un_producto_multiples_veces_se_informa_con_esa_cantidad(self):
         interfaz = InterfazRest(LISTA_DE_USUARIOS_CON_UN_USUARIO, CATALOGO_DE_UN_ELEMENTO, FECHA, MP)
 
         id_carrito = interfaz.create_cart(CLIENTE, CONTRASENIA)
@@ -67,7 +67,7 @@ class TestInterfaz(unittest.TestCase):
         self.assertEqual(interfaz.list_cart(id_carrito), [(LIBRO, 2)])
         self.assertEqual(interfaz.list_purchases(CLIENTE, CONTRASENIA), ([], 0))
 
-    def test06(self):
+    def test06_no_se_puede_agregar_un_producto_a_un_carrito_inexistente(self):
         interfaz = InterfazRest(LISTA_DE_USUARIOS_CON_UN_USUARIO, CATALOGO_DE_UN_ELEMENTO, FECHA, MP)
 
         try:
@@ -79,7 +79,7 @@ class TestInterfaz(unittest.TestCase):
 
     # TODO: Testear timeout
 
-    def test09(self):
+    def test08_distintos_carritos_con_distintos_productos_se_listan_de_manera_distinta(self):
         interfaz = InterfazRest(LISTA_DE_USUARIOS_CON_UN_USUARIO, CATALOGO_DE_UN_ELEMENTO, FECHA, MP)
 
         id_carrito1 = interfaz.create_cart(CLIENTE, CONTRASENIA)
@@ -93,7 +93,7 @@ class TestInterfaz(unittest.TestCase):
 
         self.assertEqual(interfaz.list_purchases(CLIENTE, CONTRASENIA), ([], 0))
 
-    def test10(self):
+    def test10_no_se_pueden_listar_carritos_con_un_id_inexistente(self):
         interfaz = InterfazRest(LISTA_DE_USUARIOS_CON_UN_USUARIO, CATALOGO_DE_UN_ELEMENTO, FECHA, MP)
 
         try:
@@ -102,7 +102,7 @@ class TestInterfaz(unittest.TestCase):
         except Exception as e:
             self.assertEqual(str(e), InterfazRest.CARRITO_INVALIDO)
 
-    def test11(self):
+    def test11_no_se_puede_realizar_checkout_de_un_carrito_vacio(self):
         interfaz = InterfazRest(LISTA_DE_USUARIOS_CON_UN_USUARIO, CATALOGO_DE_UN_ELEMENTO, FECHA, MP)
 
         id_carrito = interfaz.create_cart(CLIENTE, CONTRASENIA)
@@ -115,7 +115,7 @@ class TestInterfaz(unittest.TestCase):
             self.assertEqual(interfaz.list_purchases(CLIENTE, CONTRASENIA), ([], 0))
 
 
-    def test12(self):
+    def test12_no_se_puede_realizar_checkout_si_la_fecha_de_la_tarjeta_es_invalida(self):
         interfaz = InterfazRest(LISTA_DE_USUARIOS_CON_UN_USUARIO, CATALOGO_DE_UN_ELEMENTO, FECHA, MP)
 
         id_carrito = interfaz.create_cart(CLIENTE, CONTRASENIA)
@@ -128,7 +128,7 @@ class TestInterfaz(unittest.TestCase):
             self.assertEqual(str(e), InterfazRest.FECHA_INVALIDA)
             self.assertEqual(interfaz.list_purchases(CLIENTE, CONTRASENIA), ([], 0))
 
-    def test13(self):
+    def test13_no_se_pueden_listar_las_compras_de_un_cliente_inexistente(self):
         interfaz = InterfazRest(LISTA_DE_USUARIOS_CON_UN_USUARIO, CATALOGO_DE_UN_ELEMENTO, FECHA, MP)
 
         try:
@@ -137,7 +137,7 @@ class TestInterfaz(unittest.TestCase):
         except Exception as e:
             self.assertEqual(str(e), InterfazRest.COMBINACION_USUARIO_Y_CLAVE_INVALIDA)
 
-    def test14(self):
+    def test14_no_se_puede_hacer_checkout_de_un_carrito_inexistente(self):
         interfaz = InterfazRest(LISTA_DE_USUARIOS_CON_UN_USUARIO, CATALOGO_DE_UN_ELEMENTO, FECHA, MP)
 
         try:
@@ -146,7 +146,7 @@ class TestInterfaz(unittest.TestCase):
         except Exception as e:
             self.assertEqual(str(e), InterfazRest.CARRITO_INVALIDO)
 
-    def test15(self):
+    def test15_al_hacer_checkout_de_un_producto_este_figura_como_comprado(self):
         interfaz = InterfazRest(LISTA_DE_USUARIOS_CON_UN_USUARIO, CATALOGO_DE_UN_ELEMENTO, FECHA, MP)
 
         id_carrito = interfaz.create_cart(CLIENTE, CONTRASENIA)
@@ -156,7 +156,7 @@ class TestInterfaz(unittest.TestCase):
         self.assertEqual(transaction_id, 2)
         self.assertEqual(interfaz.list_purchases(CLIENTE, CONTRASENIA), ([(LIBRO, 1)], 17))
 
-    def test16(self):
+    def test16_al_hacer_checkout_de_multiples_productos_estos_figuran_comprados(self):
         interfaz = InterfazRest(LISTA_DE_USUARIOS_CON_UN_USUARIO, CATALOGO_DE_MULTIPLES_ELEMENTOS, FECHA, MP)
 
         id_carrito = interfaz.create_cart(CLIENTE, CONTRASENIA)
@@ -170,7 +170,7 @@ class TestInterfaz(unittest.TestCase):
         self.assertTrue((LIBRO, 3) in compras)
         self.assertTrue((OTRO_LIBRO, 2) in compras)
 
-    def test17(self):
+    def test17_multiples_compras_de_un_producto_se_suman_en_la_lista_de_compras(self):
         interfaz = InterfazRest(LISTA_DE_USUARIOS_CON_UN_USUARIO, CATALOGO_DE_MULTIPLES_ELEMENTOS, FECHA, MP)
 
         id_carrito = interfaz.create_cart(CLIENTE, CONTRASENIA)
@@ -186,7 +186,7 @@ class TestInterfaz(unittest.TestCase):
         self.assertEqual(len(compras), 1)
         self.assertTrue((LIBRO, 6) in compras)
 
-    def test18(self):
+    def test18_multiples_compras_de_usuarios_distintos_terminan_en_lista_de_compras_distintas(self):
         interfaz = InterfazRest(LISTA_DE_USUARIOS_CON_MULTIPLES_USUARIO, CATALOGO_DE_MULTIPLES_ELEMENTOS, FECHA, MP)
 
         id_carrito_1 = interfaz.create_cart(CLIENTE, CONTRASENIA)
@@ -207,7 +207,7 @@ class TestInterfaz(unittest.TestCase):
         self.assertEqual(len(compras), 1)
         self.assertTrue((OTRO_LIBRO, 1) in compras)
 
-    def test19(self):
+    def test19_no_se_pueden_listar_las_compras_con_un_usuario_mal_autenticado(self):
         interfaz = InterfazRest(LISTA_DE_USUARIOS_CON_UN_USUARIO, CATALOGO_DE_UN_ELEMENTO, FECHA, MP)
 
         try:
@@ -216,7 +216,7 @@ class TestInterfaz(unittest.TestCase):
         except Exception as e:
             self.assertEqual(str(e), InterfazRest.COMBINACION_USUARIO_Y_CLAVE_INVALIDA)
 
-    def test20(self):
+    def test20_no_se_pueden_lista_los_productos_de_un_carrito_ya_checkouteado(self):
         interfaz = InterfazRest(LISTA_DE_USUARIOS_CON_MULTIPLES_USUARIO, CATALOGO_DE_MULTIPLES_ELEMENTOS, FECHA, MP)
 
         id_carrito = interfaz.create_cart(CLIENTE, CONTRASENIA)
@@ -229,7 +229,7 @@ class TestInterfaz(unittest.TestCase):
         except Exception as e:
             self.assertEqual(str(e), InterfazRest.CARRITO_INVALIDO)
 
-    def test21(self):
+    def test21_no_se_puede_agregar_productos_a_un_carrito_ya_checkouteado(self):
         interfaz = InterfazRest(LISTA_DE_USUARIOS_CON_MULTIPLES_USUARIO, CATALOGO_DE_MULTIPLES_ELEMENTOS, FECHA, MP)
 
         id_carrito = interfaz.create_cart(CLIENTE, CONTRASENIA)
