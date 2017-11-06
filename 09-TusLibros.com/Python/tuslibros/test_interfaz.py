@@ -4,7 +4,7 @@ from interfaz import InterfazRest
 
 CLIENTE = 'Cliente'
 OTRO_CLIENTE = 'Otro Cliente'
-CONTRASENIA = 'contraseña'
+CONTRASENIA = 'contrasenia'
 
 LIBRO = 'Libro'
 OTRO_LIBRO = 'Otro Libro'
@@ -70,7 +70,7 @@ class TestInterfaz(unittest.TestCase):
         interfaz = InterfazRest(LISTA_DE_USUARIOS_CON_UN_USUARIO, CATALOGO_DE_UN_ELEMENTO, RELOJ_ESTACIONARIO, MP)
 
         try:
-            id_carrito = interfaz.create_cart(CLIENTE, 'contraseña inválida')
+            id_carrito = interfaz.create_cart(CLIENTE, 'contrasenia invalida')
             self.fail()
         except Exception as e:
             self.assertEqual(str(e), InterfazRest.COMBINACION_USUARIO_Y_CLAVE_INVALIDA)
@@ -235,7 +235,7 @@ class TestInterfaz(unittest.TestCase):
         interfaz = InterfazRest(LISTA_DE_USUARIOS_CON_UN_USUARIO, CATALOGO_DE_UN_ELEMENTO, RELOJ_ESTACIONARIO, MP)
 
         try:
-            id_carrito = interfaz.list_purchases(CLIENTE, 'contraseña inválida')
+            id_carrito = interfaz.list_purchases(CLIENTE, 'contrasenia invalida')
             self.fail()
         except Exception as e:
             self.assertEqual(str(e), InterfazRest.COMBINACION_USUARIO_Y_CLAVE_INVALIDA)
