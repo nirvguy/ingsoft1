@@ -76,33 +76,8 @@ class TestInterfaz(unittest.TestCase):
         except Exception as e:
             self.assertEqual(str(e), InterfazRest.CARRITO_INVALIDO)
 
-    def test07(self):
-        interfaz = InterfazRest(LISTA_DE_USUARIOS_CON_UN_USUARIO, CATALOGO_DE_UN_ELEMENTO, FECHA, MP)
 
-        try:
-            interfaz.add_to_cart(1, LIBRO, 2)
-            self.fail()
-        except Exception as e:
-            self.assertEqual(str(e), InterfazRest.CARRITO_INVALIDO)
-
-
-
-    # TODO: No se pueden agregar cosas a un carrito checkauteado
     # TODO: Testear timeout
-
-    def test08(self):
-        interfaz = InterfazRest(LISTA_DE_USUARIOS_CON_UN_USUARIO, CATALOGO_DE_UN_ELEMENTO, FECHA, MP)
-
-        id_carrito1 = interfaz.create_cart(CLIENTE, CONTRASENIA)
-        id_carrito2 = interfaz.create_cart(CLIENTE, CONTRASENIA)
-
-        interfaz.add_to_cart(id_carrito1, LIBRO, 1)
-        interfaz.add_to_cart(id_carrito2, LIBRO, 3)
-
-        self.assertEqual(interfaz.list_cart(id_carrito1), [(LIBRO, 1)])
-        self.assertEqual(interfaz.list_cart(id_carrito2), [(LIBRO, 3)])
-
-        self.assertEqual(interfaz.list_purchases(CLIENTE, CONTRASENIA), ([], 0))
 
     def test09(self):
         interfaz = InterfazRest(LISTA_DE_USUARIOS_CON_UN_USUARIO, CATALOGO_DE_UN_ELEMENTO, FECHA, MP)
