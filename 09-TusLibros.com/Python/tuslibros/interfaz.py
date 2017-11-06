@@ -88,8 +88,6 @@ class InterfazRest(object):
             raise Exception(self.FECHA_INVALIDA)
         if id_carrito not in self._sesiones:
             raise Exception(self.CARRITO_INVALIDO)
-        if self._sesiones[id_carrito].carrito().vacio():
-            raise Exception(self.CHECKOUT_CARRITO_VACIO)
         if self._sesiones[id_carrito].expiro(self._reloj.today()):
             raise Exception(self.TIMEOUT_CARRITO)
 
