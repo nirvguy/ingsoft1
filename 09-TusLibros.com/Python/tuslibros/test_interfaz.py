@@ -261,11 +261,6 @@ class TestInterfaz(unittest.TestCase):
         interfaz.add_to_cart(id_carrito, LIBRO, 3)
         interfaz.checkout(id_carrito, '2' * 16, '122019', 'duenio')
 
-        compras, total = interfaz.list_purchases(CLIENTE, CONTRASENIA)
-        self.assertEqual(total, 3*17)
-        self.assertEqual(len(compras), 1)
-        self.assertTrue((LIBRO, 3) in compras)
-
         try:
             interfaz.add_to_cart(id_carrito, LIBRO, 2)
             self.fail()
