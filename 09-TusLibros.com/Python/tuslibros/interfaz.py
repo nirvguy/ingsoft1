@@ -55,6 +55,8 @@ class InterfazRest(object):
     def add_to_cart(self, id_carrito, producto, cantidad):
         if id_carrito not in self._sesiones:
             raise Exception(self.CARRITO_INVALIDO)
+        if cantidad <= 0:
+            raise Exception(self.UNIDADES_DEBEN_SER_POSITIVAS)
         if self._sesiones[id_carrito].expiro(self._reloj.today()):
             raise Exception(self.TIMEOUT_CARRITO)
 
