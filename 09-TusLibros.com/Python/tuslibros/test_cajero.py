@@ -49,7 +49,7 @@ class CajeroTest(unittest.TestCase):
         self.MP_REGISTRADOR = MPRegistrador()
         self.LIBRO_DE_VENTAS = []
 
-    def test01(self):
+    def test01_no_se_puede_hacer_checkout_de_un_carrito_vacio(self):
         carrito = Carrito(CATALOGO_VACIO)
         cajero = Cajero(catalogo=CATALOGO_VACIO, carrito=carrito, tarjeta=TARJETA, fecha=FECHA, mp=self.MP_REGISTRADOR, libro=self.LIBRO_DE_VENTAS)
 
@@ -62,7 +62,7 @@ class CajeroTest(unittest.TestCase):
             self.assertEqual(self.MP_REGISTRADOR.tarjeta(), None)
             self.assertEqual(self.LIBRO_DE_VENTAS, [])
 
-    def test02(self):
+    def test02_el_checkout_de_un_solo_producto_se_agrega_al_libro_de_ventas(self):
         carrito = Carrito(CATALOGO_DE_UN_ELEMENTO)
         cajero = Cajero(catalogo=CATALOGO_DE_UN_ELEMENTO, carrito=carrito, tarjeta=TARJETA, fecha=FECHA, mp=self.MP_REGISTRADOR, libro=self.LIBRO_DE_VENTAS)
 
@@ -74,7 +74,7 @@ class CajeroTest(unittest.TestCase):
         self.assertEqual(self.MP_REGISTRADOR.tarjeta(), TARJETA)
         self.assertEqual(self.LIBRO_DE_VENTAS, [Venta({LIBRO: 1}, 17)])
 
-    def test03(self):
+    def test03_el_monto_total_de_multiples_productos_de_una_unidad_checkaouteados_es_la_suma_del_monto_de_cada_producto(self):
         carrito = Carrito(CATALOGO_DE_MULTIPLES_ELEMENTOS)
         cajero = Cajero(catalogo=CATALOGO_DE_MULTIPLES_ELEMENTOS, carrito=carrito, tarjeta=TARJETA, fecha=FECHA, mp=self.MP_REGISTRADOR, libro=self.LIBRO_DE_VENTAS)
 
@@ -86,7 +86,7 @@ class CajeroTest(unittest.TestCase):
         self.assertEqual(self.MP_REGISTRADOR.tarjeta(), TARJETA)
         self.assertEqual(self.LIBRO_DE_VENTAS, [Venta({LIBRO: 1, OTRO_LIBRO: 1}, 17 + 33)])
 
-    def test04(self):
+    def test04_el_monto_total_de_un_producto_de_multiples_unidades_comprados_es_el_producto_de_las_unidades_por_el_monto(self):
         carrito = Carrito(CATALOGO_DE_UN_ELEMENTO)
         cajero = Cajero(catalogo=CATALOGO_DE_UN_ELEMENTO, carrito=carrito, tarjeta=TARJETA, fecha=FECHA, mp=self.MP_REGISTRADOR, libro=self.LIBRO_DE_VENTAS)
 
@@ -98,7 +98,7 @@ class CajeroTest(unittest.TestCase):
         self.assertEqual(self.MP_REGISTRADOR.tarjeta(), TARJETA)
         self.assertEqual(self.LIBRO_DE_VENTAS, [Venta({LIBRO: 2}, 2*17)])
 
-    def test05(self):
+    def test05_no_se_pueden_hacer_checkout_productos_inexistentes(self):
         carrito = Carrito(catalogo=CATALOGO_DE_MULTIPLES_ELEMENTOS)
         cajero = Cajero(catalogo=CATALOGO_DE_UN_ELEMENTO, carrito=carrito, tarjeta=TARJETA, fecha=FECHA, mp=self.MP_REGISTRADOR, libro=self.LIBRO_DE_VENTAS)
 
@@ -129,7 +129,7 @@ class CajeroTest(unittest.TestCase):
             self.assertEqual(self.MP_REGISTRADOR.tarjeta(), None)
             self.assertEqual(self.LIBRO_DE_VENTAS, [])
 
-    def test08(self):
+    def test08_el_checkout_de_una_tarjeta_robada_no_afecta_el_libro_de_ventas(self):
         msg = 'Tarjeta robada!'
         mp = MPXXX(msg)
         carrito = Carrito(catalogo=CATALOGO_DE_UN_ELEMENTO)
@@ -144,7 +144,7 @@ class CajeroTest(unittest.TestCase):
             self.assertEqual(str(e), msg)
             self.assertEqual(self.LIBRO_DE_VENTAS, [])
 
-    def test09(self):
+    def test09_el_checkout_de_una_tarjeta_sin_fondo_no_afecta_el_libro_de_ventas(self):
         msg = 'Tarjeta sin fondo!'
         mp = MPXXX(msg)
         carrito = Carrito(catalogo=CATALOGO_DE_UN_ELEMENTO)
