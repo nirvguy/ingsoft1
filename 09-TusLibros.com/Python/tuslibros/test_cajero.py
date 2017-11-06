@@ -29,6 +29,7 @@ class MPRegistrador(SimuladorMerchantProcessor):
     def debit(self, tarjeta, monto):
         self._monto = monto
         self._tarjeta = tarjeta
+        return 1
 
     def monto(self):
         return self._monto
@@ -53,7 +54,7 @@ class CajeroTest(unittest.TestCase):
         cajero = Cajero(catalogo=CATALOGO_VACIO, carrito=carrito, tarjeta=TARJETA, fecha=FECHA, mp=self.MP_REGISTRADOR, libro=self.LIBRO_DE_VENTAS)
 
         try:
-            precio = cajero.checkout()
+            transaction_id = cajero.checkout()
             self.fail()
         except Exception as e:
             self.assertEqual(str(e), Cajero.CHECKOUT_CARRITO_VACIO)
@@ -66,9 +67,9 @@ class CajeroTest(unittest.TestCase):
         cajero = Cajero(catalogo=CATALOGO_DE_UN_ELEMENTO, carrito=carrito, tarjeta=TARJETA, fecha=FECHA, mp=self.MP_REGISTRADOR, libro=self.LIBRO_DE_VENTAS)
 
         carrito.agregar(LIBRO)
-        precio = cajero.checkout()
+        transaction_id = cajero.checkout()
 
-        self.assertEqual(precio, 17)
+        self.assertEqual(transaction_id, 1)
         self.assertEqual(self.MP_REGISTRADOR.monto(), 17)
         self.assertEqual(self.MP_REGISTRADOR.tarjeta(), TARJETA)
         self.assertEqual(self.LIBRO_DE_VENTAS, [Venta({LIBRO: 1}, 17)])
@@ -79,9 +80,8 @@ class CajeroTest(unittest.TestCase):
 
         carrito.agregar(LIBRO)
         carrito.agregar(OTRO_LIBRO)
-        precio = cajero.checkout()
+        cajero.checkout()
 
-        self.assertEqual(precio, 17 + 33)
         self.assertEqual(self.MP_REGISTRADOR.monto(), 17 + 33)
         self.assertEqual(self.MP_REGISTRADOR.tarjeta(), TARJETA)
         self.assertEqual(self.LIBRO_DE_VENTAS, [Venta({LIBRO: 1, OTRO_LIBRO: 1}, 17 + 33)])
@@ -92,9 +92,8 @@ class CajeroTest(unittest.TestCase):
 
         carrito.agregar(LIBRO)
         carrito.agregar(LIBRO)
-        precio = cajero.checkout()
+        transaction_id = cajero.checkout()
 
-        self.assertEqual(precio, 2*17)
         self.assertEqual(self.MP_REGISTRADOR.monto(), 2*17)
         self.assertEqual(self.MP_REGISTRADOR.tarjeta(), TARJETA)
         self.assertEqual(self.LIBRO_DE_VENTAS, [Venta({LIBRO: 2}, 2*17)])
@@ -107,7 +106,7 @@ class CajeroTest(unittest.TestCase):
         carrito.agregar(OTRO_LIBRO)
 
         try:
-            precio = cajero.checkout()
+            transaction_id = cajero.checkout()
             self.fail()
         except Exception as e:
             self.assertEqual(str(e), Cajero.PRODUCTO_NO_ESTA_EN_CATALOGO)
@@ -122,7 +121,7 @@ class CajeroTest(unittest.TestCase):
         carrito.agregar(LIBRO)
 
         try:
-            precio = cajero.checkout()
+            transaction_id = cajero.checkout()
             self.fail()
         except Exception as e:
             self.assertEqual(str(e), Cajero.TARJETA_EXPIRADA)
@@ -135,7 +134,7 @@ class CajeroTest(unittest.TestCase):
         cajero = Cajero(catalogo=CATALOGO_DE_UN_ELEMENTO, carrito=carrito, tarjeta=TARJETA, fecha=FECHA, mp=self.MP_REGISTRADOR, libro=self.LIBRO_DE_VENTAS)
 
         carrito.agregar(LIBRO)
-        precio = cajero.checkout()
+        transaction_id = cajero.checkout()
 
         self.assertEqual(self.MP_REGISTRADOR.monto(), 17)
         self.assertEqual(self.MP_REGISTRADOR.tarjeta(), TARJETA)
@@ -150,7 +149,7 @@ class CajeroTest(unittest.TestCase):
         carrito.agregar(LIBRO)
 
         try:
-            precio = cajero.checkout()
+            transaction_id = cajero.checkout()
             self.fail()
         except Exception as e:
             self.assertEqual(str(e), msg)
@@ -165,7 +164,7 @@ class CajeroTest(unittest.TestCase):
         carrito.agregar(LIBRO)
 
         try:
-            precio = cajero.checkout()
+            transaction_id = cajero.checkout()
             self.fail()
         except Exception as e:
             self.assertEqual(str(e), msg)

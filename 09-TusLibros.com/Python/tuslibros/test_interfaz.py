@@ -20,7 +20,7 @@ LISTA_DE_USUARIOS_CON_MULTIPLES_USUARIO = { CLIENTE: CONTRASENIA, OTRO_CLIENTE: 
 
 class SimuladorMerchantProcessor(object):
     def debit(self, tarjeta, monto):
-        pass
+        return 2
 
 MP = SimuladorMerchantProcessor()
 FECHA = date(2017, 1, 1)
@@ -176,8 +176,9 @@ class TestInterfaz(unittest.TestCase):
 
         id_carrito = interfaz.create_cart(CLIENTE, CONTRASENIA)
         interfaz.add_to_cart(id_carrito, LIBRO, 1)
-        interfaz.checkout(id_carrito, '2' * 16, '122019', 'duenio')
+        transaction_id = interfaz.checkout(id_carrito, '2' * 16, '122019', 'duenio')
 
+        self.assertEqual(transaction_id, 2)
         self.assertEqual(interfaz.list_purchases(CLIENTE, CONTRASENIA), ([(LIBRO, 1)], 17))
 
     def test16(self):

@@ -73,9 +73,9 @@ class InterfazRest(object):
         tarjeta = Tarjeta(nro_tarjeta, mes_expiracion, anio_expiracion, duenio)
 
         cajero = Cajero(self._catalogo, carrito, tarjeta, self._fecha, self._mp, self._libros_de_ventas[usuario])
-        cajero.checkout()
+        transaction_id = cajero.checkout()
 
         del self._carritos[id_carrito]
         del self._usuario_de_carrito[id_carrito]
 
-        return 1
+        return transaction_id

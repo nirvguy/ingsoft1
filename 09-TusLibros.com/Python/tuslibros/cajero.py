@@ -23,7 +23,7 @@ class Cajero(object):
 
         monto = sum(self._catalogo[producto] * self._carrito.unidades(producto)
                     for producto in self._carrito.productos())
-        self._mp.debit(self._tarjeta, monto)
+        transaction_id = self._mp.debit(self._tarjeta, monto)
         self._libro.append(Venta({p: self._carrito.unidades(p) for p in self._carrito.productos()}, monto))
 
-        return monto
+        return transaction_id
