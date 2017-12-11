@@ -320,20 +320,20 @@ class PortfolioTests(unittest.TestCase):
 
     def test01ReceptiveAccountHaveZeroAsBalanceWhenCreated(self):
         account = ReceptiveAccount()
-        self.assertEquals(0,account.balance())
+        self.assertEqual(0,account.balance())
 
     def test02DepositIncreasesBalanceOnTransactionValue(self):
         account = ReceptiveAccount ()
         Deposit.registerForOn(100,account)
 
-        self.assertEquals(100,account.balance())
+        self.assertEqual(100,account.balance())
 
     def test03WithdrawDecreasesBalanceOnTransactionValue(self):
         account = ReceptiveAccount ()
         Deposit.registerForOn(100,account)
         Withdraw.registerForOn(50,account)
 
-        self.assertEquals(50,account.balance())
+        self.assertEqual(50,account.balance())
 
     def test04PortfolioBalanceIsSumOfManagedAccountsBalance(self):
         account1 = ReceptiveAccount ()
@@ -345,7 +345,7 @@ class PortfolioTests(unittest.TestCase):
         Deposit.registerForOn(100,account1)
         Deposit.registerForOn(200,account2)
 
-        self.assertEquals(300,complexPortfolio.balance())
+        self.assertEqual(300,complexPortfolio.balance())
 
     def test05PortfolioCanManagePortfolios(self):
         account1 = ReceptiveAccount ()
@@ -357,7 +357,7 @@ class PortfolioTests(unittest.TestCase):
         Deposit.registerForOn(100,account1)
         Deposit.registerForOn(200,account2)
         Deposit.registerForOn(300,account3)
-        self.assertEquals(600,composedPortfolio.balance())
+        self.assertEqual(600,composedPortfolio.balance())
 
 
     def test06ReceptiveAccountsKnowsRegisteredTransactions(self):
@@ -444,7 +444,7 @@ class PortfolioTests(unittest.TestCase):
 
         deposit1 = Deposit.registerForOn(100,account1)
 
-        self.assertEquals(1,len(account1.transactions()))
+        self.assertEqual(1,len(account1.transactions()))
         self.assertTrue(deposit1 in account1.transactions())
 
     def test15PortfolioKnowsItsAccountsTransactions(self):
@@ -458,7 +458,7 @@ class PortfolioTests(unittest.TestCase):
         deposit2 = Deposit.registerForOn(200,account2)
         deposit3 = Deposit.registerForOn(300,account3)
 
-        self.assertEquals(3,len(composedPortfolio.transactions()))
+        self.assertEqual(3,len(composedPortfolio.transactions()))
         self.assertTrue(deposit1 in composedPortfolio.transactions())
         self.assertTrue(deposit2 in composedPortfolio.transactions())
         self.assertTrue(deposit3 in composedPortfolio.transactions())
@@ -469,7 +469,7 @@ class PortfolioTests(unittest.TestCase):
             Portfolio.createWith(account1,account1)
             self.fail()
         except Exception as invalidPortfolio:
-            self.assertEquals(Portfolio.ACCOUNT_ALREADY_MANAGED, str(invalidPortfolio))
+            self.assertEqual(Portfolio.ACCOUNT_ALREADY_MANAGED, str(invalidPortfolio))
 
     def test17CanNotCreatePortfoliosWithAccountsManagedByOtherManagedPortfolio(self):
         account1 = ReceptiveAccount ()
@@ -479,7 +479,7 @@ class PortfolioTests(unittest.TestCase):
             Portfolio.createWith(complexPortfolio,account1)
             self.fail()
         except Exception as invalidPortfolio:
-            self.assertEquals(Portfolio.ACCOUNT_ALREADY_MANAGED, str(invalidPortfolio))
+            self.assertEqual(Portfolio.ACCOUNT_ALREADY_MANAGED, str(invalidPortfolio))
 
     def test18TransferShouldWithdrawFromFromAccountAndDepositIntoToAccount(self):
         fromAccount = ReceptiveAccount ()
@@ -487,8 +487,8 @@ class PortfolioTests(unittest.TestCase):
 
         Transfer.registerFor(100,fromAccount, toAccount)
 
-        self.assertEquals(-100, fromAccount.balance())
-        self.assertEquals(100, toAccount.balance())
+        self.assertEqual(-100, fromAccount.balance())
+        self.assertEqual(100, toAccount.balance())
 
 
     def test19AccountSummaryShouldProvideHumanReadableTransactionsDetail(self):
@@ -501,10 +501,10 @@ class PortfolioTests(unittest.TestCase):
 
         lines = self.accountSummaryLines(fromAccount)
 
-        self.assertEquals(3,len(lines))
-        self.assertEquals("Deposito por 100", lines[0])
-        self.assertEquals("Extraccion por 50", lines[1])
-        self.assertEquals("Transferencia por -100", lines[2])
+        self.assertEqual(3,len(lines))
+        self.assertEqual("Deposito por 100", lines[0])
+        self.assertEqual("Extraccion por 50", lines[1])
+        self.assertEqual("Transferencia por -100", lines[2])
 
 
     def accountSummaryLines(self,fromAccount):
@@ -519,8 +519,8 @@ class PortfolioTests(unittest.TestCase):
         Transfer.registerFor(100,fromAccount, toAccount)
         Transfer.registerFor(250,toAccount, fromAccount)
 
-        self.assertEquals(150.0,self.accountTransferNet(fromAccount))
-        self.assertEquals(-150.0,self.accountTransferNet(toAccount))
+        self.assertEqual(150.0,self.accountTransferNet(fromAccount))
+        self.assertEqual(-150.0,self.accountTransferNet(toAccount))
 
     def accountTransferNet(self, account):
         return AccountTransferNetReducer(account).reduce()
@@ -534,8 +534,8 @@ class PortfolioTests(unittest.TestCase):
         Transfer.registerFor(100,account, toAccount)
         CertificateOfDeposit.registerFor(100,30,0.1,account)
 
-        self.assertEquals(100.0,self.investmentNet(account))
-        self.assertEquals(750.0,account.balance())
+        self.assertEqual(100.0,self.investmentNet(account))
+        self.assertEqual(750.0,account.balance())
 
 
     def investmentNet(self,account):
@@ -549,7 +549,7 @@ class PortfolioTests(unittest.TestCase):
 
         investmentEarnings = 100*(0.1/360)*30 + 100*(0.15/360)*60
 
-        self.assertEquals(investmentEarnings,self.investmentEarnings(account))
+        self.assertEqual(investmentEarnings,self.investmentEarnings(account))
 
     def investmentEarnings(self, account):
         return InvestmentEarningsReducer(account).reduce()
@@ -565,11 +565,11 @@ class PortfolioTests(unittest.TestCase):
 
         lines = self.accountSummaryLines(fromAccount)
 
-        self.assertEquals(4,len(lines))
-        self.assertEquals("Deposito por 100", lines[0])
-        self.assertEquals("Extraccion por 50", lines[1])
-        self.assertEquals("Transferencia por -100", lines[2])
-        self.assertEquals("Plazo fijo por 1000 durante 30 dias a una tna de 0.1", lines[3])
+        self.assertEqual(4,len(lines))
+        self.assertEqual("Deposito por 100", lines[0])
+        self.assertEqual("Extraccion por 50", lines[1])
+        self.assertEqual("Transferencia por -100", lines[2])
+        self.assertEqual("Plazo fijo por 1000 durante 30 dias a una tna de 0.1", lines[3])
 
     def test24ShouldBeAbleToBeQueryTransferNetWithCertificateOfDeposit(self):
         fromAccount = ReceptiveAccount ()
@@ -581,8 +581,8 @@ class PortfolioTests(unittest.TestCase):
         Transfer.registerFor(250,toAccount, fromAccount)
         CertificateOfDeposit.registerFor(1000, 30, 0.1, fromAccount)
 
-        self.assertEquals(150.0,self.accountTransferNet(fromAccount))
-        self.assertEquals(-150.0,self.accountTransferNet(toAccount))
+        self.assertEqual(150.0,self.accountTransferNet(fromAccount))
+        self.assertEqual(-150.0,self.accountTransferNet(toAccount))
 
     def test25PortfolioTreePrinter(self):
         account1 = ReceptiveAccount ()
@@ -600,12 +600,12 @@ class PortfolioTests(unittest.TestCase):
 
         lines = self.portofolioTreeOf(composedPortfolio, accountNames)
 
-        self.assertEquals(5, len(lines))
-        self.assertEquals("composedPortfolio", lines[0])
-        self.assertEquals(" complexPortfolio", lines[1])
-        self.assertEquals("  account1", lines[2])
-        self.assertEquals("  account2", lines[3])
-        self.assertEquals(" account3", lines[4])
+        self.assertEqual(5, len(lines))
+        self.assertEqual("composedPortfolio", lines[0])
+        self.assertEqual(" complexPortfolio", lines[1])
+        self.assertEqual("  account1", lines[2])
+        self.assertEqual("  account2", lines[3])
+        self.assertEqual(" account3", lines[4])
 
     def portofolioTreeOf(self, composedPortfolio, accountNames):
         return TreeCalculator(composedPortfolio, accountNames).tree()
@@ -626,12 +626,12 @@ class PortfolioTests(unittest.TestCase):
 
         lines = self.reversePortofolioTreeOf(composedPortfolio, accountNames)
 
-        self.assertEquals(5, len(lines))
-        self.assertEquals(" account3", lines[0])
-        self.assertEquals("  account2", lines[1])
-        self.assertEquals("  account1", lines[2])
-        self.assertEquals(" complexPortfolio", lines[3])
-        self.assertEquals("composedPortfolio", lines[4])
+        self.assertEqual(5, len(lines))
+        self.assertEqual(" account3", lines[0])
+        self.assertEqual("  account2", lines[1])
+        self.assertEqual("  account1", lines[2])
+        self.assertEqual(" complexPortfolio", lines[3])
+        self.assertEqual("composedPortfolio", lines[4])
 
     def reversePortofolioTreeOf(self, composedPortfolio, accountNames):
         return ReverseTreeCalculator(composedPortfolio, accountNames).tree()
