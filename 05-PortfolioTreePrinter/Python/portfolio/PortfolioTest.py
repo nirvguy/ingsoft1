@@ -138,7 +138,8 @@ class Portfolio(SummarizingAccount):
         return self==anAccount or any(account.manages(anAccount) for account in self._accounts)
 
     def transactions(self):
-        return reduce(lambda transactions,account: transactions + account.transactions(),self._accounts, [])
+        #return reduce(lambda transactions,account: transactions + account.transactions(),self._accounts, [])
+        return [xfer for acc in self._accounts for xfer in acc.transactions()]
 
     def addAccount(self,account):
         if self.manages(account):
@@ -468,7 +469,7 @@ class PortfolioTests(unittest.TestCase):
             Portfolio.createWith(account1,account1)
             self.fail()
         except Exception as invalidPortfolio:
-            self.assertEquals(Portfolio.ACCOUNT_ALREADY_MANAGED, invalidPortfolio.message)
+            self.assertEquals(Portfolio.ACCOUNT_ALREADY_MANAGED, str(invalidPortfolio))
 
     def test17CanNotCreatePortfoliosWithAccountsManagedByOtherManagedPortfolio(self):
         account1 = ReceptiveAccount ()
@@ -478,7 +479,7 @@ class PortfolioTests(unittest.TestCase):
             Portfolio.createWith(complexPortfolio,account1)
             self.fail()
         except Exception as invalidPortfolio:
-            self.assertEquals(Portfolio.ACCOUNT_ALREADY_MANAGED, invalidPortfolio.message)
+            self.assertEquals(Portfolio.ACCOUNT_ALREADY_MANAGED, str(invalidPortfolio))
 
     def test18TransferShouldWithdrawFromFromAccountAndDepositIntoToAccount(self):
         fromAccount = ReceptiveAccount ()
@@ -634,6 +635,3 @@ class PortfolioTests(unittest.TestCase):
 
     def reversePortofolioTreeOf(self, composedPortfolio, accountNames):
         return ReverseTreeCalculator(composedPortfolio, accountNames).tree()
-
-if __name__ == '__main__':
-    unittest.main()
