@@ -73,7 +73,6 @@ class Transfer:
         toAccount.register(cls(Deposit(value)))
 
 class SummarizingAccount:
-
     def balance(self):
         pass
 
@@ -84,6 +83,9 @@ class SummarizingAccount:
         pass
 
     def transactions(self):
+        pass
+
+    def balanceOf(self, instrument):
         pass
 
     def reversePortofolioTreeOf(self, accountNames):
@@ -108,6 +110,9 @@ class ReceptiveAccount(SummarizingAccount):
 
     def transactions(self):
         return copy(self._transactions)
+
+    def balanceOf(self, instrument):
+        return FinancialInstrumentBalanceReducer(self, instrument).reduce()
 
     def visit(self, treeCalculator):
         return treeCalculator.receptive()
@@ -212,6 +217,15 @@ class TransactionReducer:
     def certificateOfDeposit(self, transaction):
         pass
 
+    def financialInstrumentPurchase(self, transaction):
+        pass
+
+    def financialInstrumentSale(self, transaction):
+        pass
+
+    def composedInvestment(self, transaction):
+        pass
+
     def _mapTransactions(self):
         return map(lambda transaction: transaction.visit(self),
                    self._account.transactions())
@@ -234,6 +248,15 @@ class BalanceReducer(TransactionReducer):
     def certificateOfDeposit(self, transaction):
         return -transaction.value()
 
+    def financialInstrumentPurchase(self, transaction):
+        return -transaction.value()
+
+    def financialInstrumentSale(self, transaction):
+        return transaction.value()
+
+    def composedInvestment(self, transaction):
+        return transaction.value()
+
 class SummaryReducer(TransactionReducer):
     reducer = list
 
@@ -249,6 +272,20 @@ class SummaryReducer(TransactionReducer):
     def certificateOfDeposit(self, transaction):
         return "Plazo fijo por {} durante {} dias a una tna de {}".format(transaction.value(), transaction.numberOfDays(), transaction.tna())
 
+    def financialInstrumentPurchase(self, transaction):
+        return "Compra por {} de {} por {}".format(transaction.value(), transaction.instrument(), transaction.unitPrice())
+
+    def financialInstrumentSale(self, transaction):
+        return "Venta de {} {} por {}".format(transaction.amount(), transaction.instrument(), transaction.unitPrice())
+
+    def composedInvestment(self, transaction):
+        lines = []
+        lines.append("***Inicio de transaccion compuesta***")
+        lines.extend(transaction.visitInvestments(self))
+        lines.append("***Fin de transaccion compuesta***")
+
+        return "\n".join(lines)
+
 class AccountTransferNetReducer(TransactionReducer):
     reducer = sum
 
@@ -262,6 +299,15 @@ class AccountTransferNetReducer(TransactionReducer):
         return transaction.accountTransferNet()
 
     def certificateOfDeposit(self, transaction):
+        return 0
+
+    def financialInstrumentPurchase(self, transaction):
+        return 0
+
+    def financialInstrumentSale(self, transaction):
+        return 0
+
+    def composedInvestment(self, transaction):
         return 0
 
 class InvestmentNetReducer(TransactionReducer):
@@ -279,6 +325,15 @@ class InvestmentNetReducer(TransactionReducer):
     def certificateOfDeposit(self, transaction):
         return transaction.value()
 
+    def financialInstrumentPurchase(self, transaction):
+        return 0
+
+    def financialInstrumentSale(self, transaction):
+        return 0
+
+    def composedInvestment(self, transaction):
+        return 0
+
 class InvestmentEarningsReducer(TransactionReducer):
     reducer = sum
     def deposit(self, transaction):
@@ -292,6 +347,15 @@ class InvestmentEarningsReducer(TransactionReducer):
 
     def certificateOfDeposit(self, transaction):
         return transaction.earnings()
+
+    def financialInstrumentPurchase(self, transaction):
+        return 0
+
+    def financialInstrumentSale(self, transaction):
+        return 0
+
+    def composedInvestment(self, transaction):
+        return 0
 
 class TreeCalculator(object):
     def __init__(self, account, accountNames):
@@ -315,6 +379,185 @@ class TreeCalculator(object):
 class ReverseTreeCalculator(TreeCalculator):
     def tree(self):
         return list(reversed(super(self.__class__, self).tree()))
+
+class InvestmentValidator:
+    INSUFFICIENT_FUNDS = "Insufficient funds for investment"
+
+    def __init__(self, account):
+        self._account = account
+
+    def financialInstrumentPurchase(self, investment):
+        if investment.value() > self._account.balance():
+            raise Exception(self.INSUFFICIENT_FUNDS)
+
+    def financialInstrumentSale(self, investment):
+        if investment.amount() > self._account.balanceOf(investment.instrument()):
+            raise Exception(self.INSUFFICIENT_FUNDS)
+
+    def composedInvestment(self, investment):
+        for instrument, value in investment.valuesByInstrument().items():
+            if value + self._account.balance() < 0:
+                raise Exception(self.INSUFFICIENT_FUNDS)
+        for instrument, amount in investment.amountsByInstrument().items():
+            if amount + self._account.balanceOf(instrument) < 0:
+                raise Exception(self.INSUFFICIENT_FUNDS)
+
+    @classmethod
+    def validate(cls, investment, account):
+        validator = cls(account)
+        investment.visit(validator)
+
+class FinancialInstrumentPurchase:
+    def __init__(self, value, instrument, unitPrice):
+        self._value = value
+        self._instrument = instrument
+        self._unitPrice = unitPrice
+
+    def value(self):
+        return self._value
+
+    def amount(self):
+        return self._value / self._unitPrice
+
+    def instrument(self):
+        return self._instrument
+
+    def unitPrice(self):
+        return self._unitPrice
+
+    def visit(self, visitor):
+        return visitor.financialInstrumentPurchase(self)
+
+    @classmethod
+    def registerFor(cls, value, instrument, unitPrice, account):
+        purchase = cls(value, instrument, unitPrice)
+        InvestmentValidator.validate(purchase, account)
+        return account.register(purchase)
+
+class FinancialInstrumentSale:
+    def __init__(self, amount, instrument, unitPrice):
+        self._amount = amount
+        self._instrument = instrument
+        self._unitPrice = unitPrice
+
+    def value(self):
+        return self._amount * self._unitPrice
+
+    def amount(self):
+        return self._amount
+
+    def instrument(self):
+        return self._instrument
+
+    def unitPrice(self):
+        return self._unitPrice
+
+    def visit(self, visitor):
+        return visitor.financialInstrumentSale(self)
+
+    @classmethod
+    def registerFor(cls, amount, instrument, unitPrice, account):
+        sale = cls(amount, instrument, unitPrice)
+        InvestmentValidator.validate(sale, account)
+        return account.register(sale)
+
+class ComposedInvestment:
+    def __init__(self, investments):
+        self._investments = investments
+
+    def instruments(self):
+        return set(map(lambda investment: investment.instrument(), self._investments))
+
+    def byInstrument(self, instrument):
+        return filter(lambda investment: investment.instrument() == instrument, self._investments)
+
+    def valuesByInstrument(self):
+        values = {}
+        valueReducer = InvestmentValueReducer()
+        for instrument in self.instruments():
+            values[instrument] = valueReducer.reduce(self.byInstrument(instrument))
+
+        return values
+
+    def amountsByInstrument(self):
+        amounts = {}
+        amountReducer = InvestmentAmountReducer()
+        for instrument in self.instruments():
+            amounts[instrument] = amountReducer.reduce(self.byInstrument(instrument))
+
+        return amounts
+
+    def value(self):
+        return InvestmentValueReducer().reduce(self._investments)
+
+    def amount(self):
+        return InvestmentAmountReducer().reduce(self._investments)
+
+    def visit(self, visitor):
+        return visitor.composedInvestment(self)
+
+    def visitInvestments(self, visitor):
+        return [investment.visit(visitor) for investment in self._investments]
+
+    @classmethod
+    def registerFor(cls, investments, account):
+        composedInvestment = cls(investments)
+        InvestmentValidator.validate(composedInvestment, account)
+        return account.register(composedInvestment)
+
+class InvestmentValueReducer:
+    def financialInstrumentPurchase(self, investment):
+        return -investment.value()
+
+    def financialInstrumentSale(self, investment):
+        return investment.value()
+
+    def reduce(self, investments):
+        return sum([investment.visit(self) for investment in investments])
+
+class InvestmentAmountReducer:
+    def financialInstrumentPurchase(self, investment):
+        return investment.amount()
+
+    def financialInstrumentSale(self, investment):
+        return -investment.amount()
+
+    def reduce(self, investments):
+        return sum([investment.visit(self) for investment in investments])
+
+class FinancialInstrumentBalanceReducer(TransactionReducer):
+    reducer = sum
+
+    def __init__(self, account, instrument):
+        self._account = account
+        self._instrument = instrument
+
+    def deposit(self, transaction):
+        return 0
+
+    def withdraw(self, transaction):
+        return 0
+
+    def transfer(self, transaction):
+        return 0
+
+    def certificateOfDeposit(self, transaction):
+        return 0
+
+    def financialInstrumentPurchase(self, transaction):
+        if self._instrument == transaction.instrument():
+            return transaction.amount()
+        else:
+            return 0
+
+    def financialInstrumentSale(self, transaction):
+        if self._instrument == transaction.instrument():
+            return -transaction.amount()
+        else:
+            return 0
+
+    def composedInvestment(self, transaction):
+        return transaction.amount()
 
 class PortfolioTests(unittest.TestCase):
 
@@ -635,3 +878,156 @@ class PortfolioTests(unittest.TestCase):
 
     def reversePortofolioTreeOf(self, composedPortfolio, accountNames):
         return ReverseTreeCalculator(composedPortfolio, accountNames).tree()
+
+    def test27FinancialInstrumentPurchaseImpactsBalance(self):
+        account = ReceptiveAccount()
+        Deposit.registerForOn(100, account)
+        purchase = FinancialInstrumentPurchase.registerFor(10, "Bitcoin", 1, account)
+
+        self.assertEqual(90, account.balance())
+        self.assertTrue(account.hasRegistered(purchase))
+
+    def test28CanNotBuyFinancialInstrumentWithInsufficientFunds(self):
+        account = ReceptiveAccount()
+
+        try:
+            FinancialInstrumentPurchase.registerFor(10, "Bitcoin", 1, account)
+            self.fail()
+        except Exception as insufficentFunds:
+            self.assertEqual(InvestmentValidator.INSUFFICIENT_FUNDS, str(insufficentFunds))
+            self.assertEqual(0, account.balance())
+            self.assertEqual([], self.accountSummaryLines(account))
+
+    def test29AccountSummaryProvidesHumanReadableFinancialInstrumentPurchaseDetail(self):
+        account = ReceptiveAccount()
+        Deposit.registerForOn(100, account)
+        FinancialInstrumentPurchase.registerFor(10, "Bitcoin", 1, account)
+
+        lines = self.accountSummaryLines(account)
+
+        self.assertEqual(2, len(lines))
+        self.assertEqual("Deposito por 100", lines[0])
+        self.assertEqual("Compra por 10 de Bitcoin por 1", lines[1])
+
+    def test30CanGetBalanceForFinancialInstrument(self):
+        account = ReceptiveAccount()
+        Deposit.registerForOn(100, account)
+        FinancialInstrumentPurchase.registerFor(10, "Bitcoin", 2, account)
+        FinancialInstrumentPurchase.registerFor(16, "Dogecoin", 4, account)
+
+        self.assertEqual(5, account.balanceOf("Bitcoin"))
+        self.assertEqual(4, account.balanceOf("Dogecoin"))
+
+    def test31BalanceForNonBoughtFinancialInstrumentIsZero(self):
+        account = ReceptiveAccount()
+
+        self.assertEqual(0, account.balanceOf("sad pepe"))
+
+    def test32FinancialInstrumentSaleImpactsBalance(self):
+        account = ReceptiveAccount()
+        Deposit.registerForOn(100, account)
+        FinancialInstrumentPurchase.registerFor(10, "Bitcoin", 1, account)
+        sale = FinancialInstrumentSale.registerFor(10, "Bitcoin", 2, account)
+
+        self.assertEqual(110, account.balance())
+        self.assertTrue(account.hasRegistered(sale))
+
+    def test33CanNotSellFinancialInstrumentWithInsufficientFunds(self):
+        account = ReceptiveAccount()
+        Deposit.registerForOn(100, account)
+        FinancialInstrumentPurchase.registerFor(10, "Bitcoin", 1, account)
+
+        try:
+            FinancialInstrumentSale.registerFor(11, "Bitcoin", 1, account)
+            self.fail()
+        except Exception as insufficentFunds:
+            self.assertEqual(InvestmentValidator.INSUFFICIENT_FUNDS, str(insufficentFunds))
+            self.assertEqual(90, account.balance())
+            lines = self.accountSummaryLines(account)
+            self.assertEqual(2, len(lines))
+            self.assertEqual("Deposito por 100", lines[0])
+            self.assertEqual("Compra por 10 de Bitcoin por 1", lines[1])
+
+    def test34AccountSummaryProvidesHumanReadableFinancialInstrumentSaleDetail(self):
+        account = ReceptiveAccount()
+        Deposit.registerForOn(100, account)
+        FinancialInstrumentPurchase.registerFor(10, "Bitcoin", 1, account)
+        FinancialInstrumentPurchase.registerFor(10, "Dogecoin", 10, account)
+        FinancialInstrumentSale.registerFor(10, "Bitcoin", 2, account)
+
+        lines = self.accountSummaryLines(account)
+
+        self.assertEqual(4, len(lines))
+        self.assertEqual("Deposito por 100", lines[0])
+        self.assertEqual("Compra por 10 de Bitcoin por 1", lines[1])
+        self.assertEqual("Compra por 10 de Dogecoin por 10", lines[2])
+        self.assertEqual("Venta de 10 Bitcoin por 2", lines[3])
+
+    def test35FinancialInstrumentBalanceTakesSalesIntoAccount(self):
+        account = ReceptiveAccount()
+        Deposit.registerForOn(100, account)
+        FinancialInstrumentPurchase.registerFor(10, "Bitcoin", 1, account)
+        FinancialInstrumentSale.registerFor(2, "Bitcoin", 2, account)
+
+        self.assertEqual(8, account.balanceOf("Bitcoin"))
+
+    def test36ComposedInvestmentsImpactBalance(self):
+        account = ReceptiveAccount()
+        Deposit.registerForOn(100, account)
+        purchase1 = FinancialInstrumentPurchase(10, "Bitcoin", 1)
+        purchase2 = FinancialInstrumentPurchase(20, "Bitcoin", 5)
+        composedInvestment = ComposedInvestment.registerFor([purchase1, purchase2], account)
+
+        self.assertEqual(70, account.balance())
+        self.assertEqual(14, account.balanceOf("Bitcoin"))
+        self.assertTrue(account.hasRegistered(composedInvestment))
+
+    def test37CanBuyComposedInvestmentsIfTotalMoneyIsEnough(self):
+        account = ReceptiveAccount()
+        purchase = FinancialInstrumentPurchase(10, "Bitcoin", 1)
+        sale = FinancialInstrumentSale(4, "Bitcoin", 5)
+        ComposedInvestment.registerFor([purchase, sale], account)
+
+        self.assertEqual(10, account.balance())
+        self.assertEqual(6, account.balanceOf("Bitcoin"))
+
+    def test38CanNotBuyComposedInvestmentsIfNotEnoughMoney(self):
+        account = ReceptiveAccount()
+        purchase = FinancialInstrumentPurchase(10, "Bitcoin", 1)
+        sale = FinancialInstrumentSale(1, "Bitcoin", 5)
+
+        try:
+            ComposedInvestment.registerFor([purchase, sale], account)
+            self.fail()
+        except Exception as insufficentFunds:
+            self.assertEqual(InvestmentValidator.INSUFFICIENT_FUNDS, str(insufficentFunds))
+            self.assertEqual(0, account.balance())
+
+    def test39IndividualAndComposedInvestmentsCanInteract(self):
+        account = ReceptiveAccount()
+        Deposit.registerForOn(100, account)
+        purchase1 = FinancialInstrumentPurchase(10, "Bitcoin", 1)
+        purchase2 = FinancialInstrumentPurchase(20, "Bitcoin", 5)
+        composedInvestment = ComposedInvestment.registerFor([purchase1, purchase2], account)
+        sale = FinancialInstrumentSale.registerFor(14, "Bitcoin", 10, account)
+
+        self.assertEqual(210, account.balance())
+        self.assertEqual(0, account.balanceOf("Bitcoin"))
+        self.assertTrue(account.hasRegistered(composedInvestment))
+        self.assertTrue(account.hasRegistered(sale))
+
+    def test40AccountSummaryProvidesHumanReadableCompositeInvestmentDetail(self):
+        account = ReceptiveAccount()
+        purchase = FinancialInstrumentPurchase(10, "Bitcoin", 1)
+        sale = FinancialInstrumentSale(4, "Bitcoin", 5)
+        ComposedInvestment.registerFor([purchase, sale], account)
+
+        summary = self.accountSummaryLines(account)
+        lines = summary[0].splitlines()
+
+        self.assertEqual(1, len(summary))
+        self.assertEqual(4, len(lines))
+        self.assertEqual("***Inicio de transaccion compuesta***", lines[0])
+        self.assertEqual("Compra por 10 de Bitcoin por 1", lines[1])
+        self.assertEqual("Venta de 4 Bitcoin por 5", lines[2])
+        self.assertEqual("***Fin de transaccion compuesta***", lines[3])
